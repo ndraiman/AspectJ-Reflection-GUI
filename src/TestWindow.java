@@ -1,9 +1,17 @@
 import java.awt.EventQueue;
+import java.awt.FileDialog;
 
 import javax.swing.JFrame;
+
 import java.awt.BorderLayout;
+
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JButton;
+
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.io.File;
 
 
 public class TestWindow {
@@ -52,7 +60,24 @@ public class TestWindow {
 		JPanel panel_1 = new JPanel();
 		frame.getContentPane().add(panel_1, BorderLayout.SOUTH);
 		
-		JButton btnNewButton = new JButton("New button");
+		JButton btnNewButton = new JButton("Open FileDialog");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				File myFilename;
+				JFileChooser chooser = new JFileChooser();
+				OpenFileFilter javaFilter = new OpenFileFilter("java","Java Code File");
+				chooser.addChoosableFileFilter(javaFilter);
+				chooser.setFileFilter(javaFilter);
+				int returnVal = chooser.showSaveDialog(frame);
+				
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+				     myFilename = chooser.getSelectedFile();
+				     //do something with the file
+				}
+				
+			}
+		});
 		panel_1.add(btnNewButton);
 		
 		JButton btnNewButton_1 = new JButton("New button");
