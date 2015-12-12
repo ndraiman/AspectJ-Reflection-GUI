@@ -189,7 +189,8 @@ public class TestWindow {
 			try {
 				
 				URL myJarUrl = new URL("jar","","file:" + myFile.getAbsolutePath() + "!/");
-				URL myFileUrl = new URL("file","","file:" + myFile.getAbsolutePath() + "!/");
+				URL myFileUrl = new URL("file:///" + myFile.getParent() + "/");
+				System.out.println(myFileUrl);
 			
 				URLClassLoader sysLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
 				
@@ -212,15 +213,23 @@ public class TestWindow {
 					sysMethod.invoke(sysLoader, new Object[]{myFileUrl});
 					cl = URLClassLoader.newInstance(new URL[] {myFileUrl});
 					
+				
+				
+					//trying to load class file
+					String filenameWithoutExt = myFile.getName().substring(0, myFile.getName().lastIndexOf('.'));
+					Class<?> c = cl.loadClass(filenameWithoutExt);
+					
+					DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+					root.add(new DefaultMutableTreeNode(c.getName()));
+				
 				}
 				
-				//trying to load class file
-				String filenameWithoutExt = myFile.getName().substring(0, myFile.getName().lastIndexOf('.'));
-				cl.loadClass(filenameWithoutExt);
+				
+				
 				
 				
 				//trying to load jar file
-				System.out.println("file path = " + myFile.getAbsolutePath()); //DEBUG
+				System.out.println("jar path = " + myFile.getAbsolutePath()); //DEBUG
 				
 				List<String> classNames = new ArrayList<String>();
 				ZipInputStream zip = new ZipInputStream(new FileInputStream(myFile.getAbsolutePath()));
