@@ -1,14 +1,9 @@
-
 public aspect TestAspect {
 	
-	pointcut callDrive() : call(* Car.drive(String)) || execution(* Car.drive(String));
-	
-	before() : callDrive() {
-		System.out.println("Starting to Drive");
-	}
-	
-	after() : callDrive() {
-		System.out.println("Arrived at Destination");
-	}
+	pointcut test() : execution(* TestTarget.test*(...));
 
+    before() : test()
+    public void advice(JoinPoint joinPoint) {
+        System.out.printf("TestAspect.advice() called on '%s'%n", joinPoint);
+    }
 }
