@@ -1,61 +1,40 @@
-import java.awt.EventQueue;
-import java.awt.FileDialog;
-
-import javax.swing.JFrame;
-
 import java.awt.BorderLayout;
-
-import javax.swing.JFileChooser;
-import javax.swing.JPanel;
-import javax.swing.JButton;
-
-import java.awt.event.ActionListener;
+import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.JTextPane;
-
-import java.awt.FlowLayout;
-
-import javax.swing.JTextArea;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.RowMapper;
-import javax.swing.tree.TreePath;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
-
-import java.awt.GridLayout;
-import java.awt.CardLayout;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.JLabel;
 
 
 public class TestWindow {
 
 	private JFrame frame;
-	private JTextArea textArea = new JTextArea();
-	private JTree tree; // = new JTree();
+	private JTree tree;
 
 	public JFrame getFrame() {
 		return frame;
@@ -83,6 +62,10 @@ public class TestWindow {
 	public TestWindow() {
 		initialize();
 	}
+	
+	/*********************************************************/
+	/*********************************************************/
+	/*********************************************************/
 
 	/**
 	 * Initialize the contents of the frame.
@@ -93,19 +76,11 @@ public class TestWindow {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
-		JPanel panel = new JPanel();
-		panel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		frame.getContentPane().add(panel, BorderLayout.CENTER);
-		panel.setLayout(new BorderLayout(0, 0));
+		JPanel treePanel = new JPanel();
+		treePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
+		treePanel.setLayout(new BorderLayout(0, 0));
 		
-		textArea.setEditable(false);
-		textArea.setRows(10);
-		textArea.setColumns(10);
-		panel.add(textArea);
-		
-		
-//		JTree tree = new JTree();
-//		tree.setModel(null);
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Loaded Classes");
 		tree = new JTree(root);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -123,37 +98,39 @@ public class TestWindow {
 		};
 		
 		tree.addMouseListener(mouse);
-		panel.add(tree, BorderLayout.NORTH);
+		
+		JScrollPane scrollPane = new JScrollPane(tree);
+		treePanel.add(scrollPane, BorderLayout.CENTER);
 		
 
 		
-		JPanel panel_1 = new JPanel();
-		frame.getContentPane().add(panel_1, BorderLayout.SOUTH);
+		JPanel buttonPanel = new JPanel();
+		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 		
-		JButton btnNewButton = new JButton("Open FileDialog");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton btnLoadFile = new JButton("Load Class/Jar");
+		btnLoadFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
+				DefaultTreeModel model = ((DefaultTreeModel) tree.getModel());
+				((DefaultMutableTreeNode) model.getRoot()).removeAllChildren();
 				loadFile();
-				
+				model.reload();
 			}
 		});
-		panel_1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		panel_1.add(btnNewButton);
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		buttonPanel.add(btnLoadFile);
 		
-		JLabel label = new JLabel("");
-		panel_1.add(label);
+		JButton btnNewButton_1 = new JButton("Test Button 1");
+		buttonPanel.add(btnNewButton_1);
 		
-		JLabel label_1 = new JLabel("");
-		panel_1.add(label_1);
-		
-		JButton btnNewButton_1 = new JButton("New button");
-		panel_1.add(btnNewButton_1);
-		
-		JButton btnNewButton_2 = new JButton("New button");
-		panel_1.add(btnNewButton_2);
+		JButton btnNewButton_2 = new JButton("Test Button 2");
+		buttonPanel.add(btnNewButton_2);
 	}
 	
+	
+	/*********************************************************/
+	/*********************************************************/
+	/*********************************************************/
 	
 	void treeDoubleClick(int row) {
 		
@@ -162,6 +139,9 @@ public class TestWindow {
 	}
 	
 	
+	/*********************************************************/
+	/*********************************************************/
+	/*********************************************************/
 	
 	void loadFile() {
 		
@@ -177,14 +157,19 @@ public class TestWindow {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    myFile = chooser.getSelectedFile();
 		    
-		    readFile2(myFile);
+		    readFile(myFile);
 		    
 		} else {
 			//Print Error
 		}
 	}
 	
-	void readFile2(File myFile) {
+	
+	/*********************************************************/
+	/*********************************************************/
+	/*********************************************************/
+	
+	void readFile(File myFile) {
 			
 			try {
 				
@@ -282,61 +267,8 @@ public class TestWindow {
 			} 
 	}
 	
-	
-	void readFile(File file) {
-		
-	    URL fileURL;
-	    
-		try {
-			
-			fileURL = file.toURI().toURL();
-			System.out.println("fileURL = " + fileURL); //DEBUG
-			String jarURL = "jar:" + fileURL + "!/";
-			URL[] url = {new URL(jarURL)};
-			URLClassLoader cl = URLClassLoader.newInstance(url);
-//			URLClassLoader cl = new URLClassLoader(
-//				       new URL[]{file.toURI().toURL()}, this.getClass().getClassLoader());
-		    String filenameWithoutExt = file.getName().substring(0, file.getName().lastIndexOf('.'));
-		    System.out.println("filenameWithoutExt = " + filenameWithoutExt); //DEBUG
-//		    Class myClass = Class.forName(filenameWithoutExt); //DEBUG
-//		    System.out.println("TestClass = " + myClass.getName()); //DEBUG
-		    Class myClass = cl.loadClass(filenameWithoutExt);
-		    
-		    
-		    cl.close();
-		    
-		    textArea.append("Class: " + myClass.getName() + "\n\nVariables:\n"); //DEBUG
-		    
-		    DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-		    DefaultMutableTreeNode classNode = new DefaultMutableTreeNode(myClass.getName());
-		    root.add(classNode);
-		    
-		    DefaultMutableTreeNode variablesNode = new DefaultMutableTreeNode("Variables");
-		    classNode.add(variablesNode);
-		    
-		    Field[] variables = myClass.getDeclaredFields();
-		    for(int i = 0; i < variables.length; i++) {
-		    	textArea.append(variables[i] + "\n"); //DEBUG
-		    	variablesNode.add(new DefaultMutableTreeNode(variables[i]));
-		    }
-		    
-		    
-		    
-		     
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			System.out.println("ERROR: " + e.getMessage());
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		
-	}
+	/*********************************************************/
+	/*********************************************************/
+	/*********************************************************/
 
 }

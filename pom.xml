@@ -30,7 +30,14 @@
 					<artifactId>aspectj-maven-plugin</artifactId>
 					<version>1.8</version>
 					<configuration>
+					<complianceLevel>1.8</complianceLevel>
 						<ajdtBuildDefFile>build-1-5.ajproperties</ajdtBuildDefFile>
+						<aspectLibraries>
+							<aspectLibrary>
+								<groupId>org.aspectj</groupId>
+								<artifactId>aspectjrt</artifactId>
+							</aspectLibrary>
+						</aspectLibraries>
 					</configuration>
 					<executions>
 						<execution>
@@ -39,6 +46,66 @@
 							</goals>
 						</execution>
 					</executions>
+				</plugin>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.5.5</version>
+					<configuration>
+						<appendAssemblyId>false</appendAssemblyId>
+						<descriptorRefs>
+							<descriptorRef>jar-with-dependencies</descriptorRef>
+						</descriptorRefs>
+						<archive>
+							<manifest>
+								<mainClass>TestTarget</mainClass>
+							</manifest>
+						</archive>
+					</configuration>
+					<executions>
+						<execution>
+							<id>a-make-assembly</id>
+							<phase>package</phase>
+							<goals>
+								<goal>single</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- <plugin> -->
+				<!-- <groupId>org.apache.maven.plugins</groupId> -->
+				<!-- <artifactId>maven-shade-plugin</artifactId> -->
+				<!-- <version>1.6</version> -->
+				<!-- <executions> -->
+				<!-- <execution> -->
+				<!-- <phase>package</phase> -->
+				<!-- <goals> -->
+				<!-- <goal>shade</goal> -->
+				<!-- </goals> -->
+				<!-- <configuration> -->
+				<!-- <transformers> -->
+				<!-- <transformer -->
+				<!-- implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> -->
+				<!-- <mainClass>com.group.id.Launcher1</mainClass> -->
+				<!-- </transformer> -->
+				<!-- </transformers> -->
+				<!-- </configuration> -->
+				<!-- </execution> -->
+				<!-- </executions> -->
+				<!-- </plugin> -->
+				<plugin>
+					<!-- Build an executable JAR -->
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>2.4</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<addClasspath>true</addClasspath>
+								<classpathPrefix>lib/</classpathPrefix>
+								<mainClass>TestTarget</mainClass>
+							</manifest>
+						</archive>
+					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
