@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -157,7 +158,7 @@ public class TestWindow {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    myFile = chooser.getSelectedFile();
 		    
-		    readFile(myFile);
+		    readFile2(myFile);
 		    
 		} else {
 			//Print Error
@@ -271,4 +272,138 @@ public class TestWindow {
 	/*********************************************************/
 	/*********************************************************/
 
+	private void loadJar(String absolutePath, URLClassLoader cl) {
+		
+		try {
+			
+			//trying to load jar file
+			System.out.println("jar path = " + absolutePath); //DEBUG
+			
+			List<String> classNames = new ArrayList<String>();
+			ZipInputStream zip = new ZipInputStream(new FileInputStream(absolutePath));
+			
+			for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+			    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+			        // This ZipEntry represents a class. Now, what class does it represent?
+			        String className = entry.getName().replace('/', '.'); // including ".class"
+			        classNames.add(className.substring(0, className.length() - ".class".length()));
+			    }
+			}
+			
+			//add jar contents to jtree
+			List<Class<?>> classes = new ArrayList<Class<?>>();
+			for(String s : classNames) {
+				System.out.println("Loading class - " + s); //DEBUG
+				classes.add(cl.loadClass(s));
+			}
+			
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+			
+			for(Class<?> c : classes) {
+				root.add(new DefaultMutableTreeNode(c.getName()));
+			}
+			
+			zip.close();
+			
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private void loadClass(String className, URLClassLoader cl) {
+		
+		//trying to load class file
+		
+		try {
+			
+			Class<?> c = cl.loadClass(className);
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+			root.add(new DefaultMutableTreeNode(c.getName()));
+			
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+	
+	private void readFile2(File myFile) {
+		
+		try {
+			
+			URL myJarUrl = new URL("jar","","file:" + myFile.getAbsolutePath() + "!/");
+			URL myFileUrl = new URL("file:///" + myFile.getParent() + "/");
+			System.out.println(myFileUrl); //DEBUG
+		
+			URLClassLoader sysLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
+			
+			Class<URLClassLoader> sysClass = URLClassLoader.class;
+			Method sysMethod = sysClass.getDeclaredMethod("addURL",new Class[] {URL.class});
+			sysMethod.setAccessible(true);
+			
+			URLClassLoader cl = null;
+			
+			if(myFile.getName().endsWith(".jar")) {
+				
+				System.out.println("Jar Loader"); //DEBUG
+				sysMethod.invoke(sysLoader, new Object[]{myJarUrl});
+				cl = URLClassLoader.newInstance(new URL[] {myJarUrl});
+				
+				loadJar(myFile.getAbsolutePath(), cl);
+				
+			} else if (myFile.getName().endsWith(".class")) {
+				
+				System.out.println("Class Loader"); //DEBUG
+				sysMethod.invoke(sysLoader, new Object[]{myFileUrl});
+				cl = URLClassLoader.newInstance(new URL[] {myFileUrl});
+				
+				String filenameWithoutExt = myFile.getName().substring(0, myFile.getName().lastIndexOf('.'));
+				
+				loadClass(filenameWithoutExt, cl);
+			
+			}
+			
+			
+			
+	
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+}
+	
 }
