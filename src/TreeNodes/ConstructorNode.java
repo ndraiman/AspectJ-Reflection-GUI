@@ -31,7 +31,7 @@ public class ConstructorNode extends DefaultMutableTreeNode {
 		for(int i = 0; i < mCtorParams.length; i++) {
 			s += mCtorParams[i].getSimpleName();
 			
-			if(i != 0 && i != mCtorParams.length-1)
+			if(mCtorParams.length > 1 && i != mCtorParams.length-1)
 				s += ", ";
 		}
 		s += ")";

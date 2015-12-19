@@ -31,7 +31,7 @@ public class MethodNode extends DefaultMutableTreeNode {
 		for(int i = 0; i < mMethodParams.length; i++) {
 			s += mMethodParams[i].getSimpleName();
 			
-			if(i != 0 && i != mMethodParams.length-1)
+			if(mMethodParams.length > 1 && i != mMethodParams.length-1)
 				s += ", ";
 		}
 		s += ")";

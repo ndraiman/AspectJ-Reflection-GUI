@@ -172,6 +172,7 @@ public class TestWindow {
 		chooser.addChoosableFileFilter(classFilter);
 //		chooser.setFileFilter(jarFilter);
 		chooser.setFileFilter(classFilter);
+		chooser.setAcceptAllFileFilterUsed(false);
 		
 		
 		int returnVal = chooser.showSaveDialog(frame);
