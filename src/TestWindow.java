@@ -10,8 +10,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -72,6 +78,7 @@ public class TestWindow {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		
 		frame = new JFrame();
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -126,6 +133,11 @@ public class TestWindow {
 		
 		JButton btnNewButton_2 = new JButton("Test Button 2");
 		buttonPanel.add(btnNewButton_2);
+		
+		
+		//DEBUG LoadClassDetails
+		loadClassDetails(root, Car.class, null);
+		
 	}
 	
 	
@@ -148,11 +160,15 @@ public class TestWindow {
 		
 		File myFile;
 		JFileChooser chooser = new JFileChooser();
+		
 		OpenFileFilter jarFilter = new OpenFileFilter("jar","*.jar File");
 		OpenFileFilter classFilter = new OpenFileFilter("class","*.class File");
 		chooser.addChoosableFileFilter(jarFilter);
 		chooser.addChoosableFileFilter(classFilter);
-		chooser.setFileFilter(jarFilter);
+//		chooser.setFileFilter(jarFilter);
+		chooser.setFileFilter(classFilter);
+		
+		
 		int returnVal = chooser.showSaveDialog(frame);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -272,7 +288,7 @@ public class TestWindow {
 	/*********************************************************/
 	/*********************************************************/
 
-	private void loadJar(String absolutePath, URLClassLoader cl) {
+	private void loadJarFile(String absolutePath, URLClassLoader cl) {
 		
 		try {
 			
@@ -300,7 +316,8 @@ public class TestWindow {
 			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
 			
 			for(Class<?> c : classes) {
-				root.add(new DefaultMutableTreeNode(c.getName()));
+//				root.add(new DefaultMutableTreeNode(c.getName()));
+				loadClassDetails(root, c, cl);
 			}
 			
 			zip.close();
@@ -327,7 +344,7 @@ public class TestWindow {
 		
 	}
 	
-	private void loadClass(String className, URLClassLoader cl) {
+	private void loadClassFile(String className, URLClassLoader cl) {
 		
 		//trying to load class file
 		
@@ -335,7 +352,10 @@ public class TestWindow {
 			
 			Class<?> c = cl.loadClass(className);
 			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-			root.add(new DefaultMutableTreeNode(c.getName()));
+//			root.add(new DefaultMutableTreeNode(c.getName()));
+			
+			
+			loadClassDetails(root, c, cl);
 			
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -344,7 +364,116 @@ public class TestWindow {
 		
 		
 		
+		
+		
+		
 	}
+	
+	private void loadClassDetails(DefaultMutableTreeNode parent, Class<?> c, URLClassLoader cl) {
+		
+		DefaultMutableTreeNode classNode = new DefaultMutableTreeNode(c.getName());
+		parent.add(classNode);
+		
+		//Load Constructors
+		Constructor<?>[] constructors = c.getDeclaredConstructors();
+		DefaultMutableTreeNode ctors = new DefaultMutableTreeNode("Constructors");
+		for(Constructor<?> ctor : constructors) {
+			
+			String tag = Modifier.toString(ctor.getModifiers()) 
+					+ " " + ctor.getName() + "(";
+			
+			Class<?>[] params = ctor.getParameterTypes();
+			for(int i = 0; i < params.length; i++) {
+				tag += params[i].getSimpleName();
+				
+				if(i != 0 && i != params.length-1)
+					tag += ", ";
+			}
+			tag += ")";
+			ctors.add(new DefaultMutableTreeNode(tag));
+		}
+		classNode.add(ctors);
+		
+		
+		//Load Variables
+		Field[] members = c.getDeclaredFields();
+		DefaultMutableTreeNode vars = new DefaultMutableTreeNode("Variables");
+		for(Field m : members) {
+			String tag = Modifier.toString(m.getModifiers()) + " " + m.getType().getSimpleName() + " " + m.getName();
+			vars.add(new DefaultMutableTreeNode(tag));
+		}
+		classNode.add(vars);
+		
+		
+		//Load Methods
+		Method[] methods = c.getDeclaredMethods();
+		DefaultMutableTreeNode funcs = new DefaultMutableTreeNode("Methods");
+		for(Method m : methods) {
+			String tag = Modifier.toString(m.getModifiers()) 
+					+ " " + m.getReturnType().getSimpleName() 
+					+ " " + m.getName() + "(";
+			
+			Class<?>[] params = m.getParameterTypes();
+			for(int i = 0; i < params.length; i++) {
+				tag += params[i].getSimpleName();
+				
+				if(i != 0 && i != params.length-1)
+					tag += ", ";
+			}
+			tag += ")";
+			
+			funcs.add(new DefaultMutableTreeNode(tag));
+		}
+		classNode.add(funcs);
+		
+		
+		/**********************************************************************/
+		/**********************************************************************/
+		
+		
+		//Class Modifier
+		System.out.println("Class Modifier: " + Modifier.toString(c.getModifiers()));
+		
+		
+		//get Superclass - can be called recursively to get inheritance path
+		Class<?> ancestor = c.getSuperclass();
+		if(ancestor != null)
+			System.out.println("Super Class = " + ancestor.getName());
+		
+		
+		//Load Annotations
+		Annotation[] ann = c.getAnnotations();
+		for(Annotation a : ann) {
+			System.out.println("Annotation: " + a.toString());
+		}
+		
+		//Load Implemented Interfaces
+		Type[] intfs = c.getGenericInterfaces();
+		for(Type intf : intfs) {
+			System.out.println("Implemented Interface: " + intf.toString());
+		}
+		
+		
+		//TODO Load TypeParameters 
+		TypeVariable<?>[] tv = c.getTypeParameters();
+		for(TypeVariable<?> t : tv) {
+			System.out.println("Type Parameter: " + t.getName());
+		}
+
+		
+		
+		//load subclasses - calls this method recursively
+//		DefaultMutableTreeNode subClassesNode = new DefaultMutableTreeNode();
+//		classNode.add(subClassesNode);
+//
+//		Class<?>[] subclasses = c.getDeclaredClasses();
+//		for(Class<?> c0 : subclasses) {
+//			loadClassDetails(subClassesNode, c0, cl);
+//		}
+		
+		
+	}
+	
 	
 	private void readFile2(File myFile) {
 		
@@ -368,7 +497,9 @@ public class TestWindow {
 				sysMethod.invoke(sysLoader, new Object[]{myJarUrl});
 				cl = URLClassLoader.newInstance(new URL[] {myJarUrl});
 				
-				loadJar(myFile.getAbsolutePath(), cl);
+				loadJarFile(myFile.getAbsolutePath(), cl);
+				
+				
 				
 			} else if (myFile.getName().endsWith(".class")) {
 				
@@ -378,7 +509,7 @@ public class TestWindow {
 				
 				String filenameWithoutExt = myFile.getName().substring(0, myFile.getName().lastIndexOf('.'));
 				
-				loadClass(filenameWithoutExt, cl);
+				loadClassFile(filenameWithoutExt, cl);
 			
 			}
 			

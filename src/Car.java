@@ -1,13 +1,17 @@
+import java.io.Serializable;
 
-public class Car {
+
+public class Car implements Serializable{
 	
-	String location;
-	boolean isActive;
+	private String location;
+	public boolean isActive;
+	protected double milesDriven;
 	
 	
 	public Car() {
 		location = "Jerusalem";
 		isActive = true;
+		milesDriven = 0;
 	}
 
 
