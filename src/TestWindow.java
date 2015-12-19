@@ -37,6 +37,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import TreeNodes.MethodNode;
+
 
 public class TestWindow {
 
@@ -409,22 +411,14 @@ public class TestWindow {
 		Method[] methods = c.getDeclaredMethods();
 		DefaultMutableTreeNode funcs = new DefaultMutableTreeNode("Methods");
 		for(Method m : methods) {
-			String tag = Modifier.toString(m.getModifiers()) 
-					+ " " + m.getReturnType().getSimpleName() 
-					+ " " + m.getName() + "(";
-			
-			Class<?>[] params = m.getParameterTypes();
-			for(int i = 0; i < params.length; i++) {
-				tag += params[i].getSimpleName();
-				
-				if(i != 0 && i != params.length-1)
-					tag += ", ";
-			}
-			tag += ")";
-			
-			funcs.add(new DefaultMutableTreeNode(tag));
+
+			MethodNode methodNode = new MethodNode(Modifier.toString(m.getModifiers()), m.getName(), m.getParameterTypes());
+			//TODO add methodNode to classNode
+			funcs.add(methodNode);
 		}
 		classNode.add(funcs);
+		
+
 		
 		
 		/**********************************************************************/
