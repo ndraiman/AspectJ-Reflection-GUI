@@ -1,4 +1,8 @@
 package TreeNodes;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 
 
@@ -6,15 +10,17 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class MethodNode extends DefaultMutableTreeNode {
 	
+	private Method mMethod;
 	private String mMethodName;
 	private String mMethodModifier;
 	private Class<?>[] mMethodParams;
 	
-	public MethodNode(String modifier, String name, Class<?>[] params) {
+	public MethodNode(Method m) {
 		
-		mMethodName = name;
-		mMethodParams = params;
-		mMethodModifier = modifier;
+		mMethod = m;
+		mMethodName = m.getName();
+		mMethodParams = m.getParameterTypes();
+		mMethodModifier = Modifier.toString(m.getModifiers());
 		
 	}
 
@@ -32,16 +38,24 @@ public class MethodNode extends DefaultMutableTreeNode {
 		
 		return s;
 	}
+	
 
-	public String getmMethodName() {
+
+	/********* Getters **********/
+	
+	public Method getMethodObject() {
+		return mMethod;
+	}
+
+	public String getMethodName() {
 		return mMethodName;
 	}
 
-	public String getmMethodModifier() {
+	public String getMethodModifier() {
 		return mMethodModifier;
 	}
 
-	public Class<?>[] getmMethodParams() {
+	public Class<?>[] getMethodParams() {
 		return mMethodParams;
 	}
 	

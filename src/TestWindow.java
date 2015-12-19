@@ -37,7 +37,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import TreeNodes.ClassNode;
+import TreeNodes.ConstructorNode;
 import TreeNodes.MethodNode;
+import TreeNodes.VariableNode;
 
 
 public class TestWindow {
@@ -72,9 +75,9 @@ public class TestWindow {
 		initialize();
 	}
 	
-	/*********************************************************/
-	/*********************************************************/
-	/*********************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
 
 	/**
 	 * Initialize the contents of the frame.
@@ -143,9 +146,9 @@ public class TestWindow {
 	}
 	
 	
-	/*********************************************************/
-	/*********************************************************/
-	/*********************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
 	
 	void treeDoubleClick(int row) {
 		
@@ -154,9 +157,9 @@ public class TestWindow {
 	}
 	
 	
-	/*********************************************************/
-	/*********************************************************/
-	/*********************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
 	
 	void loadFile() {
 		
@@ -176,7 +179,7 @@ public class TestWindow {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    myFile = chooser.getSelectedFile();
 		    
-		    readFile2(myFile);
+		    readFile(myFile);
 		    
 		} else {
 			//Print Error
@@ -184,111 +187,9 @@ public class TestWindow {
 	}
 	
 	
-	/*********************************************************/
-	/*********************************************************/
-	/*********************************************************/
-	
-	void readFile(File myFile) {
-			
-			try {
-				
-				URL myJarUrl = new URL("jar","","file:" + myFile.getAbsolutePath() + "!/");
-				URL myFileUrl = new URL("file:///" + myFile.getParent() + "/");
-				System.out.println(myFileUrl);
-			
-				URLClassLoader sysLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
-				
-				Class<URLClassLoader> sysClass = URLClassLoader.class;
-				Method sysMethod = sysClass.getDeclaredMethod("addURL",new Class[] {URL.class});
-				sysMethod.setAccessible(true);
-				
-				URLClassLoader cl = null;
-				Class<?> loadedClass = null;
-				
-				if(myFile.getName().endsWith(".jar")) {
-					
-					System.out.println("Jar Loader"); //DEBUG
-					sysMethod.invoke(sysLoader, new Object[]{myJarUrl});
-					cl = URLClassLoader.newInstance(new URL[] {myJarUrl});
-					
-				} else if (myFile.getName().endsWith(".class")) {
-					
-					System.out.println("Class Loader"); //DEBUG
-					sysMethod.invoke(sysLoader, new Object[]{myFileUrl});
-					cl = URLClassLoader.newInstance(new URL[] {myFileUrl});
-					
-				
-				
-					//trying to load class file
-					String filenameWithoutExt = myFile.getName().substring(0, myFile.getName().lastIndexOf('.'));
-					Class<?> c = cl.loadClass(filenameWithoutExt);
-					
-					DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-					root.add(new DefaultMutableTreeNode(c.getName()));
-				
-				}
-				
-				
-				
-				
-				
-				//trying to load jar file
-				System.out.println("jar path = " + myFile.getAbsolutePath()); //DEBUG
-				
-				List<String> classNames = new ArrayList<String>();
-				ZipInputStream zip = new ZipInputStream(new FileInputStream(myFile.getAbsolutePath()));
-				
-				for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-				    if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-				        // This ZipEntry represents a class. Now, what class does it represent?
-				        String className = entry.getName().replace('/', '.'); // including ".class"
-				        classNames.add(className.substring(0, className.length() - ".class".length()));
-				    }
-				}
-				
-				//DEBUG
-				List<Class<?>> classes = new ArrayList<Class<?>>();
-				for(String s : classNames) {
-					classes.add(cl.loadClass(s));
-				}
-				
-				DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-				
-				for(Class<?> c : classes) {
-					root.add(new DefaultMutableTreeNode(c.getName()));
-				}
-				
-		
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} 
-	}
-	
-	/*********************************************************/
-	/*********************************************************/
-	/*********************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
 
 	private void loadJarFile(String absolutePath, URLClassLoader cl) {
 		
@@ -353,9 +254,7 @@ public class TestWindow {
 		try {
 			
 			Class<?> c = cl.loadClass(className);
-			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-//			root.add(new DefaultMutableTreeNode(c.getName()));
-			
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();			
 			
 			loadClassDetails(root, c, cl);
 			
@@ -371,54 +270,63 @@ public class TestWindow {
 		
 	}
 	
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	
 	private void loadClassDetails(DefaultMutableTreeNode parent, Class<?> c, URLClassLoader cl) {
 		
-		DefaultMutableTreeNode classNode = new DefaultMutableTreeNode(c.getName());
+		ClassNode classNode = new ClassNode(c);
 		parent.add(classNode);
 		
 		//Load Constructors
 		Constructor<?>[] constructors = c.getDeclaredConstructors();
-		DefaultMutableTreeNode ctors = new DefaultMutableTreeNode("Constructors");
+		DefaultMutableTreeNode ctors;
+		if(constructors.length != 0)
+			ctors = new DefaultMutableTreeNode("Constructors");
+		else
+			ctors = new DefaultMutableTreeNode("<-- No Constructors -->");
+		
 		for(Constructor<?> ctor : constructors) {
 			
-			String tag = Modifier.toString(ctor.getModifiers()) 
-					+ " " + ctor.getName() + "(";
-			
-			Class<?>[] params = ctor.getParameterTypes();
-			for(int i = 0; i < params.length; i++) {
-				tag += params[i].getSimpleName();
-				
-				if(i != 0 && i != params.length-1)
-					tag += ", ";
-			}
-			tag += ")";
-			ctors.add(new DefaultMutableTreeNode(tag));
+			ConstructorNode ctorNode = new ConstructorNode(ctor);
+			classNode.addConstructor(ctorNode);
+			ctors.add(ctorNode);
 		}
 		classNode.add(ctors);
 		
 		
 		//Load Variables
 		Field[] members = c.getDeclaredFields();
-		DefaultMutableTreeNode vars = new DefaultMutableTreeNode("Variables");
-		for(Field m : members) {
-			String tag = Modifier.toString(m.getModifiers()) + " " + m.getType().getSimpleName() + " " + m.getName();
-			vars.add(new DefaultMutableTreeNode(tag));
+		DefaultMutableTreeNode vars;
+		if(members.length != 0)
+			vars = new DefaultMutableTreeNode("Variables");
+		else
+			vars = new DefaultMutableTreeNode("<-- No Variables -->");
+		
+		for(Field v : members) {
+			VariableNode varNode = new VariableNode(v);
+			classNode.addVariable(varNode);
+			vars.add(varNode);
 		}
 		classNode.add(vars);
 		
 		
 		//Load Methods
 		Method[] methods = c.getDeclaredMethods();
-		DefaultMutableTreeNode funcs = new DefaultMutableTreeNode("Methods");
+		DefaultMutableTreeNode funcs;
+		if(methods.length != 0)
+			funcs = new DefaultMutableTreeNode("Methods");
+		else
+			funcs = new DefaultMutableTreeNode("<-- No Methods -->");
+		
 		for(Method m : methods) {
-
-			MethodNode methodNode = new MethodNode(Modifier.toString(m.getModifiers()), m.getName(), m.getParameterTypes());
-			//TODO add methodNode to classNode
+			
+			MethodNode methodNode = new MethodNode(m);
+			classNode.addMethod(methodNode);
 			funcs.add(methodNode);
 		}
 		classNode.add(funcs);
-		
-
 		
 		
 		/**********************************************************************/
@@ -469,7 +377,12 @@ public class TestWindow {
 	}
 	
 	
-	private void readFile2(File myFile) {
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	
+	
+	private void readFile(File myFile) {
 		
 		try {
 			
