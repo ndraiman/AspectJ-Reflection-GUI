@@ -17,5 +17,6 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.ajdt.core.ASPECTJRT_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.7.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
