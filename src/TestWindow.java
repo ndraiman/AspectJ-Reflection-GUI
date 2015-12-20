@@ -1,6 +1,8 @@
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -29,21 +31,28 @@ import java.util.zip.ZipInputStream;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import Dialogs.DialogInvoker;
+import Dialogs.DialogListener;
 import TreeNodes.ClassNode;
 import TreeNodes.ConstructorNode;
 import TreeNodes.MethodNode;
 import TreeNodes.VariableNode;
 
 
-public class TestWindow {
+public class TestWindow implements DialogListener, TreeSelectionListener {
+	
 
 	private JFrame frame;
 	private JTree tree;
@@ -89,6 +98,10 @@ public class TestWindow {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		
+		//Open Frame in middle of screen
+//		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+//		frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
+		
 		JPanel treePanel = new JPanel();
 		treePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
 		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
@@ -97,6 +110,7 @@ public class TestWindow {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Loaded Classes");
 		tree = new JTree(root);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+//		tree.addTreeSelectionListener(this); //Remove listener implementation if this is removed
 		
 		MouseListener mouse = new MouseAdapter() {
 			@Override
@@ -142,7 +156,7 @@ public class TestWindow {
 		
 		//DEBUG LoadClassDetails
 		loadClassDetails(root, Car.class, null);
-		
+		((DefaultTreeModel) tree.getModel()).reload();
 	}
 	
 	
@@ -152,8 +166,27 @@ public class TestWindow {
 	
 	void treeDoubleClick(int row) {
 		
+		System.out.println("double clicked row " + row);
 //		tree.getSelectionPath().getPathComponent(row);
-		tree.getLastSelectedPathComponent();
+		DefaultMutableTreeNode selected = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+		
+		if(!selected.isLeaf())
+			return;
+		
+		System.out.println("Im a leaf!");
+		if(selected instanceof VariableNode) {
+			
+			System.out.println("Variable");
+
+			int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for " + ((VariableNode) selected).getVarName() + "?",
+					"Create Pointcut", JOptionPane.YES_NO_OPTION);
+			
+			if(option == 0) {
+//				String pointcutLabel = JOptionPane.showInputDialog(frame, "Pointcut", "ppp", JOptionPane.INFORMATION_MESSAGE);
+				DialogInvoker.invokePointcutDialog(frame);
+			}
+		} 
+		
 	}
 	
 	
@@ -171,11 +204,12 @@ public class TestWindow {
 		chooser.addChoosableFileFilter(jarFilter);
 		chooser.addChoosableFileFilter(classFilter);
 //		chooser.setFileFilter(jarFilter);
-		chooser.setFileFilter(classFilter);
+		chooser.setFileFilter(classFilter); //default filter
 		chooser.setAcceptAllFileFilterUsed(false);
 		
 		
-		int returnVal = chooser.showSaveDialog(frame);
+		
+		int returnVal = chooser.showOpenDialog(frame);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    myFile = chooser.getSelectedFile();
@@ -443,6 +477,36 @@ public class TestWindow {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-}
+	}
+
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	
+	@Override
+	public void saveDialogInput(String input) {
+		System.out.println(input);
+		
+	}
+
+	@Override
+	public void valueChanged(TreeSelectionEvent e) {
+		
+		System.out.println("Tree Node Selected");
+		
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
+                tree.getLastSelectedPathComponent();
+		
+		if (node == null)
+		    //Nothing is selected.     
+		    return;
+		
+		Object userObject = node.getUserObject();
+		if(node.isLeaf()) {
+			
+			
+		}
+		
+	}
 	
 }

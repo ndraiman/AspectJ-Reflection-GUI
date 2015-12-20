@@ -32,22 +32,22 @@ public class VariableNode extends DefaultMutableTreeNode {
 	/********* Getters **********/
 
 
-	public Field getmVariable() {
+	public Field getVariable() {
 		return mVariable;
 	}
 
 
-	public String getmVarName() {
+	public String getVarName() {
 		return mVarName;
 	}
 
 
-	public String getmVarType() {
+	public String getVarType() {
 		return mVarType;
 	}
 
 
-	public String getmVarModifier() {
+	public String getVarModifier() {
 		return mVarModifier;
 	}
 	
