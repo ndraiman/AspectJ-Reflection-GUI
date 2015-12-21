@@ -5,23 +5,31 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 public class DialogInvoker {
 	
+	private static final String[] pointcutOptions = {"call", "execution", "get", "set", "initialization",
+		"preinitialization", "staticinitialization", "handler", "adviceexecution", "within", "withincode",
+		"cflow", "cflowbelow", "this", "target", "args", "PointcutId", "if", "!", "&&", "||", "( )"};
+	
 	
 	public static void invokePointcutDialog(Frame owner) {
-		
+		//TODO add relation option between pointcut options (if\or)
 		JDialog dialog = new JDialog(owner);
-//		dialog.setBounds(100, 100, 300, 150);
 		
 		Container contentPane = dialog.getContentPane();
 		contentPane.setLayout(new BorderLayout());
@@ -35,31 +43,56 @@ public class DialogInvoker {
 		catchPanel.setLayout(new GridLayout(1, 2));
 		catchPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
-		
 		JLabel nameLabel = new JLabel("Name: ");
+		nameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JTextField nameTextField = new JTextField("test()", 15);
-		JLabel catchLabel = new JLabel("Catch: ");
-		JTextArea catchTextArea = new JTextArea("call(* Object.Method(Var))", 10, 15);
-		catchTextArea.setBorder(new EtchedBorder());
+		JComboBox pointcutList = new JComboBox(pointcutOptions);
+		pointcutList.setSelectedIndex(0);
+		pointcutList.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JTextField catchTextField = new JTextField("* Object.Method(Var)", 15);
 		
 		namePanel.add(nameLabel);
 		namePanel.add(nameTextField);
-		catchPanel.add(catchLabel);
-		catchPanel.add(catchTextArea);
-		
-		
-//		inputPanel.setLayout(layout);
-//		inputPanel.add(nameLabel);
-//		inputPanel.add(nameTextField);
-//		inputPanel.add(catchLabel);
-//		inputPanel.add(catchTextField);
+		catchPanel.add(pointcutList);
+		catchPanel.add(catchTextField);
 		
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		JButton btnOk = new JButton("Save");
 		JButton btnCancel = new JButton("Cancel");
+		JButton btnAddField = new JButton("Add new field");
+
+		buttonPanel.add(btnAddField);
 		buttonPanel.add(btnOk);
 		buttonPanel.add(btnCancel);
+		
+		btnAddField.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addNewPointcut(dialog, catchPanel);
+				
+			}
+		});
+		
+		btnOk.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO save Pointcut
+				System.out.println("saving pointcut");
+				
+			}
+		});
+		
+		btnCancel.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dialog.dispose();
+				
+			}
+		});
 		
 		contentPane.add(namePanel, BorderLayout.NORTH);
 		contentPane.add(catchPanel, BorderLayout.CENTER);
@@ -68,6 +101,28 @@ public class DialogInvoker {
 		
 		dialog.pack();
 		dialog.setVisible(true);
+	}
+	
+	/**********************************************/
+	
+	private static void addNewPointcut(JDialog dialog, JPanel panel) {
+		
+		System.out.println("New Field...");
+		
+		JComboBox<String> pointcutList = new JComboBox<>(pointcutOptions);
+		pointcutList.setSelectedIndex(0);
+		pointcutList.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JTextField catchTextField = new JTextField("* Object.Method(Var)", 15);
+		
+		int rows = ((GridLayout) panel.getLayout()).getRows();
+		((GridLayout) panel.getLayout()).setRows(rows + 1);
+		
+		panel.add(pointcutList);
+		panel.add(catchTextField);
+		
+		panel.validate();
+		panel.repaint();
+		dialog.pack();
 	}
 
 }

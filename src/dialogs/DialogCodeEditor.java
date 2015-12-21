@@ -15,7 +15,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 
-public class TestDialog extends JDialog {
+public class DialogCodeEditor extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private final RSyntaxTextArea textArea = new RSyntaxTextArea();
@@ -37,7 +37,7 @@ public class TestDialog extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public TestDialog(DialogListener listener) {
+	public DialogCodeEditor(DialogListener listener) {
 		
 		setBounds(100, 100, 450, 300);
 		getContentPane().setLayout(new BorderLayout());

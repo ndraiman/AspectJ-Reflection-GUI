@@ -30,6 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -49,12 +50,13 @@ import treeNodes.ClassNode;
 import treeNodes.ConstructorNode;
 import treeNodes.MethodNode;
 import treeNodes.VariableNode;
+import dialogs.DialogCodeEditor;
 import dialogs.DialogInvoker;
 import dialogs.DialogListener;
 import extras.OpenFileFilter;
 
 
-public class TestWindow implements DialogListener, TreeSelectionListener {
+public class TestWindow implements DialogListener {
 	
 
 	private JFrame frame;
@@ -181,12 +183,12 @@ public class TestWindow implements DialogListener, TreeSelectionListener {
 			
 			System.out.println("Variable");
 
-			int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for " + ((VariableNode) selected).getVarName() + "?",
+			int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for: " + ((VariableNode) selected).getVarName() + "?",
 					"Create Pointcut", JOptionPane.YES_NO_OPTION);
 			
 			if(option == 0) {
-//				String pointcutLabel = JOptionPane.showInputDialog(frame, "Pointcut", "ppp", JOptionPane.INFORMATION_MESSAGE);
-				DialogInvoker.invokePointcutDialog(frame);
+//				DialogInvoker.invokePointcutDialog(frame);
+				new DialogCodeEditor(this).setVisible(true);
 			}
 		} 
 		
@@ -209,7 +211,6 @@ public class TestWindow implements DialogListener, TreeSelectionListener {
 //		chooser.setFileFilter(jarFilter);
 		chooser.setFileFilter(classFilter); //default filter
 		chooser.setAcceptAllFileFilterUsed(false);
-		
 		
 		
 		int returnVal = chooser.showOpenDialog(frame);
@@ -264,22 +265,16 @@ public class TestWindow implements DialogListener, TreeSelectionListener {
 			zip.close();
 			
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -297,7 +292,6 @@ public class TestWindow implements DialogListener, TreeSelectionListener {
 			loadClassDetails(root, c, cl);
 			
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
@@ -462,22 +456,16 @@ public class TestWindow implements DialogListener, TreeSelectionListener {
 			
 	
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -489,26 +477,6 @@ public class TestWindow implements DialogListener, TreeSelectionListener {
 	@Override
 	public void saveDialogInput(String input) {
 		System.out.println(input);
-		
-	}
-
-	@Override
-	public void valueChanged(TreeSelectionEvent e) {
-		
-		System.out.println("Tree Node Selected");
-		
-		DefaultMutableTreeNode node = (DefaultMutableTreeNode)
-                tree.getLastSelectedPathComponent();
-		
-		if (node == null)
-		    //Nothing is selected.     
-		    return;
-		
-		Object userObject = node.getUserObject();
-		if(node.isLeaf()) {
-			
-			
-		}
 		
 	}
 	
