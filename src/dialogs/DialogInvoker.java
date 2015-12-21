@@ -5,9 +5,11 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -19,6 +21,8 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+
+import main.TestWindow;
 
 public class DialogInvoker {
 	
@@ -147,11 +151,18 @@ public class DialogInvoker {
 		pointcutList.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JTextField catchTextField = new JTextField("* Object.Method(Var)", 15);
 		
+		String pathToImage = "Test/res/close.png";
+		ImageIcon closeIcon = new ImageIcon(DialogInvoker.class.getResource("/close.png"));
+		//TODO scale down icon image
+		JButton btnClose = new JButton(closeIcon);
+		
+		
 		int rows = ((GridLayout) panel.getLayout()).getRows();
 		((GridLayout) panel.getLayout()).setRows(rows + 1);
 		
 		panel.add(pointcutList);
 		panel.add(catchTextField);
+		panel.add(btnClose);
 		
 		panel.validate();
 		panel.repaint();
