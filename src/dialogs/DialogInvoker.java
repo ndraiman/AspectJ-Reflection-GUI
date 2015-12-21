@@ -26,8 +26,19 @@ public class DialogInvoker {
 		"preinitialization", "staticinitialization", "handler", "adviceexecution", "within", "withincode",
 		"cflow", "cflowbelow", "this", "target", "args", "PointcutId", "if", "!", "&&", "||", "( )"};
 	
+	private static final String[] pointcutMembers = {"get", "set"};
+	private static final String[] pointcutMethods = {"call", "execution", "withincode"};
+	private static final String[] pointcutConstructors = {"call", "execution", "initialization",
+		"preinitialization", "withincode"};
 	
-	public static void invokePointcutDialog(Frame owner) {
+	//TODO add pointcut list for "Pointcut" and "Type"
+	
+	public static final int TYPE_MEMBER = 1;
+	public static final int TYPE_METHOD = 2;
+	public static final int TYPE_CONSTRUCTOR = 3;
+	
+	
+	public static void invokePointcutDialog(Frame owner, int type) {
 		//TODO add relation option between pointcut options (if\or)
 		JDialog dialog = new JDialog(owner);
 		
@@ -46,7 +57,29 @@ public class DialogInvoker {
 		JLabel nameLabel = new JLabel("Name: ");
 		nameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JTextField nameTextField = new JTextField("test()", 15);
-		JComboBox pointcutList = new JComboBox(pointcutOptions);
+		JComboBox pointcutList;
+		
+		switch(type) {
+			
+		case TYPE_MEMBER:
+			 pointcutList = new JComboBox(pointcutMembers);
+			 break;
+			 
+		case TYPE_METHOD:
+			pointcutList = new JComboBox(pointcutMethods);
+			break;
+		
+		case TYPE_CONSTRUCTOR:
+			pointcutList = new JComboBox(pointcutConstructors);
+			break;
+			
+		default:
+			pointcutList = new JComboBox(pointcutOptions);
+			break;
+		
+		}
+		
+		
 		pointcutList.setSelectedIndex(0);
 		pointcutList.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JTextField catchTextField = new JTextField("* Object.Method(Var)", 15);

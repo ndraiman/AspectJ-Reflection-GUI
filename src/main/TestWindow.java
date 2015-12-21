@@ -152,8 +152,19 @@ public class TestWindow implements DialogListener {
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		buttonPanel.add(btnLoadFile);
 		
-		JButton btnNewButton_1 = new JButton("Test Button 1");
-		buttonPanel.add(btnNewButton_1);
+		JButton btnAdvice = new JButton("Add Advice");
+		buttonPanel.add(btnAdvice);
+		
+		btnAdvice.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new DialogCodeEditor(TestWindow.this).setVisible(true);
+				//TODO dialog should show list of created pointcuts
+				//TODO save advice
+				
+			}
+		});
 		
 		JButton btnNewButton_2 = new JButton("Test Button 2");
 		buttonPanel.add(btnNewButton_2);
@@ -187,8 +198,9 @@ public class TestWindow implements DialogListener {
 					"Create Pointcut", JOptionPane.YES_NO_OPTION);
 			
 			if(option == 0) {
-//				DialogInvoker.invokePointcutDialog(frame);
-				new DialogCodeEditor(this).setVisible(true);
+				DialogInvoker.invokePointcutDialog(frame, DialogInvoker.TYPE_MEMBER);
+				//TODO save pointcut
+//				new DialogCodeEditor(this).setVisible(true);
 			}
 		} 
 		
