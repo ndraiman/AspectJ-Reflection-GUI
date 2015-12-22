@@ -1,9 +1,7 @@
 package main;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -30,7 +28,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -38,9 +35,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
-import javax.swing.event.TreeModelListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -50,15 +44,18 @@ import treeNodes.ClassNode;
 import treeNodes.ConstructorNode;
 import treeNodes.MethodNode;
 import treeNodes.VariableNode;
-import dialogs.DialogCodeEditor;
 import dialogs.DialogInvoker;
 import dialogs.DialogListener;
+import extras.AdviceContainer;
 import extras.OpenFileFilter;
+import extras.PointcutContainer;
 
 
 public class TestWindow implements DialogListener {
 	
-
+	private List<PointcutContainer> mPointcuts;
+	private List<AdviceContainer> mAdvices;
+	
 	private JFrame frame;
 	private JTree tree;
 
@@ -86,6 +83,9 @@ public class TestWindow implements DialogListener {
 	 * Create the application.
 	 */
 	public TestWindow() {
+		mPointcuts = new ArrayList<>();
+		mAdvices = new ArrayList<>();
+		
 		initialize();
 	}
 	
@@ -159,7 +159,8 @@ public class TestWindow implements DialogListener {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new DialogCodeEditor(TestWindow.this).setVisible(true);
+//				new DialogCodeEditor(TestWindow.this).setVisible(true);
+				DialogInvoker.adviceDialog(frame, TestWindow.this, mPointcuts);
 				//TODO dialog should show list of created pointcuts
 				//TODO save advice
 				
@@ -189,7 +190,7 @@ public class TestWindow implements DialogListener {
 		if(!selected.isLeaf())
 			return;
 		
-		System.out.println("Im a leaf!");
+		System.out.println("Im a leaf!"); //DEBUG
 		if(selected instanceof VariableNode) {
 			
 			System.out.println("Variable");
@@ -198,9 +199,8 @@ public class TestWindow implements DialogListener {
 					"Create Pointcut", JOptionPane.YES_NO_OPTION);
 			
 			if(option == 0) {
-				DialogInvoker.invokePointcutDialog(frame, DialogInvoker.TYPE_MEMBER);
+				DialogInvoker.pointcutDialog(frame, TestWindow.this, DialogInvoker.TYPE_MEMBER);
 				//TODO save pointcut
-//				new DialogCodeEditor(this).setVisible(true);
 			}
 		} 
 		
@@ -487,9 +487,15 @@ public class TestWindow implements DialogListener {
 	/************************************************************************************************************/
 	
 	@Override
-	public void saveDialogInput(String input) {
-		System.out.println(input);
-		
+	public void saveAdvice(String input) {
+		System.out.println("Advice saved! \n" + input);
+		AdviceContainer a = new AdviceContainer(input);
+		mAdvices.add(a);
+	}
+	
+	@Override
+	public void savePointcut(PointcutContainer p) {
+		System.out.println("Pointcut Saved!");
 	}
 	
 }

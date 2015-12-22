@@ -72,7 +72,7 @@ public class DialogCodeEditor extends JDialog {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				listener.saveDialogInput(textArea.getText());
+				listener.saveAdvice(textArea.getText());
 				
 			}
 		});
