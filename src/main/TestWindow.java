@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -22,6 +23,9 @@ import java.lang.reflect.TypeVariable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -39,6 +43,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.eclipse.core.runtime.Path;
+
 import testPackage.Car;
 import treeNodes.ClassNode;
 import treeNodes.ConstructorNode;
@@ -47,6 +53,7 @@ import treeNodes.VariableNode;
 import dialogs.DialogInvoker;
 import dialogs.DialogListener;
 import extras.AdviceContainer;
+import extras.AjcRunner;
 import extras.OpenFileFilter;
 import extras.PointcutContainer;
 
@@ -55,6 +62,7 @@ public class TestWindow implements DialogListener {
 	
 	private List<PointcutContainer> mPointcuts;
 	private List<AdviceContainer> mAdvices;
+	private String mPath;
 	
 	private JFrame frame;
 	private JTree tree;
@@ -107,9 +115,11 @@ public class TestWindow implements DialogListener {
 //		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 //		frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
 		
+		/**********************/
+		/***** Tree Panel *****/
+		/**********************/
 		JPanel treePanel = new JPanel();
 		treePanel.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
 		treePanel.setLayout(new BorderLayout(0, 0));
 		
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Loaded Classes");
@@ -134,10 +144,11 @@ public class TestWindow implements DialogListener {
 		JScrollPane scrollPane = new JScrollPane(tree);
 		treePanel.add(scrollPane, BorderLayout.CENTER);
 		
-
-		
+		/************************/
+		/***** Button Panel *****/
+		/************************/
 		JPanel buttonPanel = new JPanel();
-		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		
 		JButton btnLoadFile = new JButton("Load Class/Jar");
 		btnLoadFile.addActionListener(new ActionListener() {
@@ -149,12 +160,8 @@ public class TestWindow implements DialogListener {
 				model.reload();
 			}
 		});
-		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		buttonPanel.add(btnLoadFile);
-		
+
 		JButton btnAdvice = new JButton("Add Advice");
-		buttonPanel.add(btnAdvice);
-		
 		btnAdvice.addActionListener(new ActionListener() {
 			
 			@Override
@@ -167,8 +174,23 @@ public class TestWindow implements DialogListener {
 			}
 		});
 		
-		JButton btnNewButton_2 = new JButton("Test Button 2");
-		buttonPanel.add(btnNewButton_2);
+		JButton btnCompile = new JButton("Compile");
+		btnCompile.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//TODO compile with aspects
+				compileWithAspects();
+			}
+		});
+		
+		buttonPanel.add(btnLoadFile);
+		buttonPanel.add(btnAdvice);
+		buttonPanel.add(btnCompile);
+		
+		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
+		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+		
 		
 		
 		//DEBUG LoadClassDetails
@@ -229,6 +251,7 @@ public class TestWindow implements DialogListener {
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 		    myFile = chooser.getSelectedFile();
+		    mPath = myFile.getAbsolutePath();
 		    
 		    readFile(myFile);
 		    
@@ -496,6 +519,43 @@ public class TestWindow implements DialogListener {
 	@Override
 	public void savePointcut(PointcutContainer p) {
 		System.out.println("Pointcut Saved!");
+	}
+	
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	
+	private void compileWithAspects() {
+		
+		/***** DEBUG *****/
+//		public aspect TestAspect {
+//			
+//			pointcut test() : execution(* TestTarget.test*(..));
+//
+//		    before() : test() {
+//		        System.out.printf("TestAspect.advice() called on '%s'%n", thisJoinPoint);
+//		    }
+//		}
+		
+		System.out.println("CompileWithAspects\n\n");
+		
+		StringBuilder builder = new StringBuilder();
+		builder.append("public aspect TestAspect {\n");
+		builder.append("pointcut test() : execution(* TestTarget.test*(..));\n");
+		builder.append("before() : test() {\n");
+		builder.append("System.out.printf(\"TestAspect.advice() called on '%s'%n\", thisJoinPoint);\n");
+		builder.append("}");
+		
+		String s = builder.toString();
+		
+		System.out.println(s);
+		
+		//TODO create new aspect.aj file
+		//TODO sourceroots directory
+		
+		//TODO mPath should hold loaded .jar/.class file path 
+//		AjcRunner.compileWithAspects(mPath);
+		
 	}
 	
 }

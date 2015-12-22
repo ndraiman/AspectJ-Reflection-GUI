@@ -163,13 +163,13 @@ public class DialogInvoker {
 		int rows = ((GridLayout) panel.getLayout()).getRows();
 		((GridLayout) panel.getLayout()).setRows(rows + 1);
 		
-		
-		int cols = ((GridLayout) panel.getLayout()).getColumns();
 		btnClose.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				int index = rows * JOINPOINT_COLUMNS + cols - 1;
+				//TODO fix row removal
+				int c = ((GridLayout) panel.getLayout()).getColumns();
+				int index = rows * JOINPOINT_COLUMNS + c - 1;
 				panel.remove(index);
 				panel.remove(index - 1);
 				panel.remove(index - 2);
