@@ -10,6 +10,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -17,6 +18,7 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -57,6 +59,8 @@ public class DialogInvoker {
 	
 	private static final int JOINPOINT_COLUMNS = 3;
 	
+	private static List<JButton> mJoinpointButtonList = new ArrayList<>();
+	
 	/*******************************************************************************************/
 	/*******************************************************************************************/
 	/*******************************************************************************************/
@@ -70,28 +74,40 @@ public class DialogInvoker {
 		
 		dialog.setTitle("PointCut");
 		
+		
+		
+		//pointcut name panel
 		JPanel namePanel = new JPanel();
 		namePanel.setLayout(new GridLayout(1, 2));
 		namePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JPanel joinpointPanel = new JPanel();
-		joinpointPanel.setLayout(new GridLayout(1, JOINPOINT_COLUMNS));
-		joinpointPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		JLabel nameLabel = new JLabel("Name: ");
 		nameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		JTextField nameTextField = new JTextField("myPointcut()", 15);
+		namePanel.add(nameLabel);
+		namePanel.add(nameTextField);
 		
+		
+		
+		//joinpoint panel
+		JPanel joinpointPanel = new JPanel();
+		joinpointPanel.setLayout(new GridLayout(1, JOINPOINT_COLUMNS));
+		joinpointPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+	
 		JComboBox pointcutList = getComboBox(type);
 		pointcutList.setSelectedIndex(0);
 		pointcutList.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JTextField catchTextField = new JTextField("* Object.Method(Var)", 15);
+		JTextField joinpointTextField = new JTextField("* Object.Method(Var)", 15);
 		
-		namePanel.add(nameLabel);
-		namePanel.add(nameTextField);
 		joinpointPanel.add(pointcutList);
-		joinpointPanel.add(catchTextField);
-		joinpointPanel.add(new JPanel()); //add empty panel for 3rd col
+		joinpointPanel.add(joinpointTextField);
+		JPanel emptyPanel = new JPanel();
+		emptyPanel.add(new JButton());
+		joinpointPanel.add(emptyPanel); //add empty panel for 3rd col
 		
+		
+		
+		//button panel
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		JButton btnOk = new JButton("Save");
@@ -119,6 +135,7 @@ public class DialogInvoker {
 				PointcutContainer p = new PointcutContainer(null); //TODO PLACEHOLDER
 				listener.savePointcut(p);
 				dialog.dispose();
+				mJoinpointButtonList = new ArrayList<>();
 			}
 		});
 		
@@ -127,16 +144,18 @@ public class DialogInvoker {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				dialog.dispose();
-				
+				mJoinpointButtonList = new ArrayList<>();
 			}
 		});
+		
+		
 		
 		
 		contentPane.add(namePanel, BorderLayout.NORTH);
 		contentPane.add(joinpointPanel, BorderLayout.CENTER);
 		contentPane.add(buttonPanel, BorderLayout.SOUTH);
 		
-		
+		dialog.setResizable(false);
 		dialog.pack();
 		dialog.setVisible(true);
 	}
@@ -152,7 +171,7 @@ public class DialogInvoker {
 		JComboBox<String> pointcutList = getComboBox(type);
 		pointcutList.setSelectedIndex(0);
 		pointcutList.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JTextField catchTextField = new JTextField("* Object.Method(Var)", 15);
+		JTextField joinpointTextField = new JTextField("* Object.Method(Var)", 15);
 		
 		ImageIcon closeIcon = new ImageIcon(DialogInvoker.class.getResource("/close.png"));
 		JButton btnClose = new JButton(closeIcon);
@@ -167,13 +186,21 @@ public class DialogInvoker {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO fix row removal
-				int c = ((GridLayout) panel.getLayout()).getColumns();
-				int index = rows * JOINPOINT_COLUMNS + c - 1;
+
+				JButton thisButton = (JButton) e.getSource();
+				
+				int btnIndex = mJoinpointButtonList.indexOf(thisButton);
+				int index = ((btnIndex + 1) * JOINPOINT_COLUMNS) + (JOINPOINT_COLUMNS - 1);
+				System.out.println(index);
+				
+				mJoinpointButtonList.remove(btnIndex);
 				panel.remove(index);
 				panel.remove(index - 1);
 				panel.remove(index - 2);
-				((GridLayout) panel.getLayout()).setRows(rows);
+				
+				int rows = ((GridLayout) panel.getLayout()).getRows();
+				((GridLayout) panel.getLayout()).setRows(rows - 1);
+				
 				panel.validate();
 				panel.repaint();
 				dialog.pack();
@@ -182,12 +209,16 @@ public class DialogInvoker {
 		
 		
 		panel.add(pointcutList);
-		panel.add(catchTextField);
+		panel.add(joinpointTextField);
 		panel.add(closePanel);
+		
+		mJoinpointButtonList.add(btnClose);
+		
+		System.out.println(mJoinpointButtonList.size());
 		
 		panel.validate();
 		panel.repaint();
-		dialog.setResizable(false);
+//		dialog.setResizable(false);
 		dialog.pack();
 	}
 	
