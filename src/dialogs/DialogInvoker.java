@@ -3,39 +3,27 @@ package dialogs;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.Graphics;
 import java.awt.GridLayout;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-
-import org.aspectj.org.eclipse.jdt.internal.compiler.lookup.CatchParameterBinding;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
 import extras.PointcutContainer;
-import main.TestWindow;
 
 public class DialogInvoker {
 	
@@ -101,9 +89,7 @@ public class DialogInvoker {
 		
 		joinpointPanel.add(pointcutList);
 		joinpointPanel.add(joinpointTextField);
-		JPanel emptyPanel = new JPanel();
-		emptyPanel.add(new JButton());
-		joinpointPanel.add(emptyPanel); //add empty panel for 3rd col
+		joinpointPanel.add(new JPanel()); //add empty panel for 3rd col
 		
 		
 		
