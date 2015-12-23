@@ -170,7 +170,7 @@ public class TestWindow implements DialogListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//				new DialogCodeEditor(TestWindow.this).setVisible(true);
-				DialogInvoker.adviceDialog(frame, TestWindow.this, mPointcuts);
+				new DialogInvoker(frame, TestWindow.this).adviceDialog(mPointcuts);
 				//TODO dialog should show list of created pointcuts
 				//TODO save advice
 
@@ -224,7 +224,7 @@ public class TestWindow implements DialogListener {
 					"Create Pointcut", JOptionPane.YES_NO_OPTION);
 
 			if(option == 0) {
-				DialogInvoker.pointcutDialog(frame, TestWindow.this, DialogInvoker.TYPE_MEMBER);
+				new DialogInvoker(frame, TestWindow.this).pointcutDialog(DialogInvoker.TYPE_MEMBER);
 				//TODO save pointcut
 			}
 		} 
