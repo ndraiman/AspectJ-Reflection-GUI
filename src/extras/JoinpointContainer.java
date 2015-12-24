@@ -6,7 +6,7 @@ public class JoinpointContainer {
 	private String mParam;
 	
 	public JoinpointContainer(String type, String param) {
-		
+		System.out.println("creating JoinpointContainer - " + type + "(" + param + ")");
 		mType = type;
 		mParam = param;
 		

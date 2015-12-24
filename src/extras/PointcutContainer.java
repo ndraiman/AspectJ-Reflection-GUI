@@ -11,7 +11,7 @@ public class PointcutContainer {
 	
 	
 	public PointcutContainer(String name) {
-		
+		System.out.println("creating pointcut - " + name);
 		mName = name;
 		mJoinpoints = new ArrayList<>();
 	}

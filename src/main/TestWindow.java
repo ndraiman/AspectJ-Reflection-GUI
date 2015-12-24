@@ -224,7 +224,7 @@ public class TestWindow implements DialogListener {
 					"Create Pointcut", JOptionPane.YES_NO_OPTION);
 
 			if(option == 0) {
-				new DialogInvoker(frame, TestWindow.this).pointcutDialog(DialogInvoker.TYPE_MEMBER);
+				new DialogInvoker(frame, TestWindow.this).pointcutDialog(DialogInvoker.TYPE_FIELD);
 				//TODO save pointcut
 			}
 		} 
@@ -522,6 +522,7 @@ public class TestWindow implements DialogListener {
 	@Override
 	public void savePointcut(PointcutContainer p) {
 		System.out.println("Pointcut Saved!");
+		mPointcuts.add(p);
 	}
 
 	/************************************************************************************************************/
