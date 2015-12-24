@@ -33,11 +33,16 @@ import java.util.zip.ZipInputStream;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
@@ -63,6 +68,8 @@ public class MainWindow implements DialogListener {
 
 	private JFrame frame;
 	private JTree tree;
+	
+	private final String INSTRUCTIONS = "Double click a Constructor/Method/Field\ninside a class to quickly create a Pointcut for it";
 	
 	/*************************/
 	/***** Button Labels *****/
@@ -121,7 +128,7 @@ public class MainWindow implements DialogListener {
 	private void initialize() {
 
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 300);
+		frame.setBounds(100, 100, 450, 400);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		frame.setTitle("AspectJ GUI");
@@ -130,6 +137,22 @@ public class MainWindow implements DialogListener {
 		//		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		//		frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
 
+		
+		/*****************************/
+		/***** Instruction Panel *****/
+		/*****************************/
+		JPanel instructionPanel = new JPanel();
+		JTextPane instructions = new JTextPane();
+		instructions.setText(INSTRUCTIONS);
+		instructions.setEditable(false);
+		instructionPanel.add(instructions);
+		
+		//Make text align center 
+		StyledDocument doc = instructions.getStyledDocument();
+		SimpleAttributeSet center = new SimpleAttributeSet();
+		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
+		doc.setParagraphAttributes(0, doc.getLength(), center, false);
+		
 		/**********************/
 		/***** Tree Panel *****/
 		/**********************/
@@ -218,6 +241,7 @@ public class MainWindow implements DialogListener {
 		buttonPanel.add(btnAdvice);
 		buttonPanel.add(btnCompile);
 
+		frame.getContentPane().add(instructionPanel, BorderLayout.NORTH);
 		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
 		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 
@@ -270,6 +294,11 @@ public class MainWindow implements DialogListener {
 
 		if(option == 0) {
 			new DialogInvoker(frame, MainWindow.this).pointcutDialog(type, selected);
+			
+			//TODO add option to add to an existing pointcut!
+			
+			
+			
 			//TODO save pointcut
 		}
 

@@ -131,6 +131,7 @@ public class DialogInvoker {
 
 		//TODO add relation option between pointcut options (not\and\or)
 		mDialog = new JDialog(mParentFrame);
+		mDialog.setLocationRelativeTo(mParentFrame);
 
 		Container contentPane = mDialog.getContentPane();
 		contentPane.setLayout(new BorderLayout());
@@ -254,12 +255,13 @@ public class DialogInvoker {
 
 				int btnIndex = listJoinpointButtonList.indexOf(thisButton);
 				int index = ((btnIndex + 1) * JOINPOINT_COLUMNS) + (JOINPOINT_COLUMNS - 1);
-				System.out.println(index);
+				System.out.println("Panel index = " + index);
+				System.out.println("btnIndex = " + btnIndex);
 
 				listJoinpointButtonList.remove(btnIndex);
-				listJoinpointText.remove(btnIndex);
-				listJoinpoints.remove(btnIndex);
-				listJoinpointType.remove(btnIndex);
+				listJoinpointText.remove(btnIndex + 1);
+				listJoinpoints.remove(btnIndex + 1);
+				listJoinpointType.remove(btnIndex + 1);
 				panel.remove(index);
 				panel.remove(index - 1);
 				panel.remove(index - 2);
