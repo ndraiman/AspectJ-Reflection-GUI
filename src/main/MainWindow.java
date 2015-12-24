@@ -7,13 +7,10 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -26,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -46,13 +42,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.eclipse.core.runtime.Path;
-
 import testPackage.Car;
 import treeNodes.ClassNode;
 import treeNodes.ConstructorNode;
+import treeNodes.FieldNode;
 import treeNodes.MethodNode;
-import treeNodes.VariableNode;
 import dialogs.DialogInvoker;
 import dialogs.DialogListener;
 import extras.AdviceContainer;
@@ -61,7 +55,7 @@ import extras.OpenFileFilter;
 import extras.PointcutContainer;
 
 
-public class TestWindow implements DialogListener {
+public class MainWindow implements DialogListener {
 
 	private List<PointcutContainer> mPointcuts;
 	private List<AdviceContainer> mAdvices;
@@ -69,6 +63,12 @@ public class TestWindow implements DialogListener {
 
 	private JFrame frame;
 	private JTree tree;
+	
+	
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+	/************************************************************************************************************/
+
 
 	public JFrame getFrame() {
 		return frame;
@@ -78,22 +78,25 @@ public class TestWindow implements DialogListener {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					TestWindow window = new TestWindow();
+					MainWindow window = new MainWindow();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+		
 	}
 
 	/**
 	 * Create the application.
 	 */
-	public TestWindow() {
+	public MainWindow() {
+		
 		mPointcuts = new ArrayList<>();
 		mAdvices = new ArrayList<>();
 
@@ -101,7 +104,7 @@ public class TestWindow implements DialogListener {
 	}
 
 	/************************************************************************************************************/
-	/************************************************************************************************************/
+	/**************************************** Initialize Window *************************************************/
 	/************************************************************************************************************/
 
 	/**
@@ -113,6 +116,7 @@ public class TestWindow implements DialogListener {
 		frame.setBounds(100, 100, 450, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
+		frame.setTitle("AspectJ GUI");
 
 		//Open Frame in middle of screen
 		//		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -170,7 +174,7 @@ public class TestWindow implements DialogListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//				new DialogCodeEditor(TestWindow.this).setVisible(true);
-				new DialogInvoker(frame, TestWindow.this).adviceDialog(mPointcuts);
+				new DialogInvoker(frame, MainWindow.this).adviceDialog(mPointcuts);
 				//TODO dialog should show list of created pointcuts
 				//TODO save advice
 
@@ -186,7 +190,9 @@ public class TestWindow implements DialogListener {
 				compileWithAspects();
 			}
 		});
-
+		
+		
+		
 		buttonPanel.add(btnLoadFile);
 		buttonPanel.add(btnAdvice);
 		buttonPanel.add(btnCompile);
@@ -203,7 +209,7 @@ public class TestWindow implements DialogListener {
 
 
 	/************************************************************************************************************/
-	/************************************************************************************************************/
+	/************************************** Handle Tree Clicks **************************************************/
 	/************************************************************************************************************/
 
 	void treeDoubleClick(int row) {
@@ -216,15 +222,15 @@ public class TestWindow implements DialogListener {
 			return;
 
 		System.out.println("Im a leaf!"); //DEBUG
-		if(selected instanceof VariableNode) {
+		if(selected instanceof FieldNode) {
 
 			System.out.println("Variable");
 
-			int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for: " + ((VariableNode) selected).getVarName() + "?",
+			int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for: " + ((FieldNode) selected).getFldName() + "?",
 					"Create Pointcut", JOptionPane.YES_NO_OPTION);
 
 			if(option == 0) {
-				new DialogInvoker(frame, TestWindow.this).pointcutDialog(DialogInvoker.TYPE_FIELD);
+				new DialogInvoker(frame, MainWindow.this).pointcutDialog(DialogInvoker.TYPE_FIELD);
 				//TODO save pointcut
 			}
 		} 
@@ -233,121 +239,18 @@ public class TestWindow implements DialogListener {
 
 
 	/************************************************************************************************************/
-	/************************************************************************************************************/
-	/************************************************************************************************************/
-
-	void loadFile() {
-
-		File myFile;
-		JFileChooser chooser = new JFileChooser();
-
-		OpenFileFilter jarFilter = new OpenFileFilter("jar","*.jar File");
-		OpenFileFilter classFilter = new OpenFileFilter("class","*.class File");
-		chooser.addChoosableFileFilter(jarFilter);
-		chooser.addChoosableFileFilter(classFilter);
-		//		chooser.setFileFilter(jarFilter);
-		chooser.setFileFilter(classFilter); //default filter
-		chooser.setAcceptAllFileFilterUsed(false);
-
-
-		int returnVal = chooser.showOpenDialog(frame);
-
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			myFile = chooser.getSelectedFile();
-			mInPath = myFile.getAbsolutePath();
-
-			readFile(myFile);
-
-		} else {
-			//Print Error
-		}
-	}
-
-
-	/************************************************************************************************************/
-	/************************************************************************************************************/
+	/***************************** Load Classes' Fields/Methods/Constructors ************************************/
 	/************************************************************************************************************/
 
-	private void loadJarFile(String absolutePath, URLClassLoader cl) {
-
-		try {
-
-			//trying to load jar file
-			System.out.println("jar path = " + absolutePath); //DEBUG
-
-			List<String> classNames = new ArrayList<String>();
-			ZipInputStream zip = new ZipInputStream(new FileInputStream(absolutePath));
-
-			for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
-				if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
-					// This ZipEntry represents a class. Now, what class does it represent?
-					String className = entry.getName().replace('/', '.'); // including ".class"
-					classNames.add(className.substring(0, className.length() - ".class".length()));
-				}
-			}
-
-			//add jar contents to jtree
-			List<Class<?>> classes = new ArrayList<Class<?>>();
-			for(String s : classNames) {
-				System.out.println("Loading class - " + s); //DEBUG
-				classes.add(cl.loadClass(s));
-			}
-
-			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
-
-			for(Class<?> c : classes) {
-				//				root.add(new DefaultMutableTreeNode(c.getName()));
-				loadClassDetails(root, c, cl);
-			}
-
-			zip.close();
-
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			e.printStackTrace();
-		} catch (IllegalArgumentException e) {
-			e.printStackTrace();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-	private void loadClassFile(String className, URLClassLoader cl) {
-
-		//trying to load class file
-
-		try {
-
-			Class<?> c = cl.loadClass(className);
-			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();			
-
-			loadClassDetails(root, c, cl);
-
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-
-
-
-
-
-	}
-
-	/************************************************************************************************************/
-	/************************************************************************************************************/
-	/************************************************************************************************************/
-
+	//TODO at the moment it loads only un-inherited fields/methods etc
 	private void loadClassDetails(DefaultMutableTreeNode parent, Class<?> c, URLClassLoader cl) {
 
 		ClassNode classNode = new ClassNode(c);
 		parent.add(classNode);
+		
+		//Load Package name
+		DefaultMutableTreeNode packageNode = new DefaultMutableTreeNode(classNode.getPackageName());
+		classNode.add(packageNode);
 
 		//Load Constructors
 		Constructor<?>[] constructors = c.getDeclaredConstructors();
@@ -366,20 +269,20 @@ public class TestWindow implements DialogListener {
 		classNode.add(ctors);
 
 
-		//Load Variables
+		//Load Fields
 		Field[] members = c.getDeclaredFields();
-		DefaultMutableTreeNode vars;
+		DefaultMutableTreeNode flds;
 		if(members.length != 0)
-			vars = new DefaultMutableTreeNode("Variables");
+			flds = new DefaultMutableTreeNode("Fields");
 		else
-			vars = new DefaultMutableTreeNode("<-- No Variables -->");
+			flds = new DefaultMutableTreeNode("<-- No Fields -->");
 
 		for(Field v : members) {
-			VariableNode varNode = new VariableNode(v);
-			classNode.addVariable(varNode);
-			vars.add(varNode);
+			FieldNode fldNode = new FieldNode(v);
+			classNode.addField(fldNode);
+			flds.add(fldNode);
 		}
-		classNode.add(vars);
+		classNode.add(flds);
 
 
 		//Load Methods
@@ -448,10 +351,45 @@ public class TestWindow implements DialogListener {
 
 
 	/************************************************************************************************************/
-	/************************************************************************************************************/
+	/*************************************** File Loading Methods ***********************************************/
 	/************************************************************************************************************/
 
+	
+	/*************************************/
+	/***** Invoke FileChooser Dialog *****/
+	/*************************************/
+	void loadFile() {
 
+		File myFile;
+		JFileChooser chooser = new JFileChooser();
+
+		OpenFileFilter jarFilter = new OpenFileFilter("jar","*.jar File");
+		OpenFileFilter classFilter = new OpenFileFilter("class","*.class File");
+		chooser.addChoosableFileFilter(jarFilter);
+		chooser.addChoosableFileFilter(classFilter);
+		//		chooser.setFileFilter(jarFilter);
+		chooser.setFileFilter(classFilter); //default filter
+		chooser.setAcceptAllFileFilterUsed(false);
+
+
+		int returnVal = chooser.showOpenDialog(frame);
+
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			myFile = chooser.getSelectedFile();
+			mInPath = myFile.getAbsolutePath();
+
+			readFile(myFile);
+
+		} else {
+			System.out.println("filechooser canceled");
+			//Print Error
+		}
+	}
+	
+	
+	/****************************/
+	/***** Read loaded file *****/
+	/****************************/
 	private void readFile(File myFile) {
 
 		try {
@@ -507,9 +445,89 @@ public class TestWindow implements DialogListener {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	
+	/************************************************************************************************************/
+	/************************************* Load File Helper Methods *********************************************/
+	/************************************************************************************************************/
+
+	/********************/
+	/***** Jar File *****/
+	/********************/
+	private void loadJarFile(String absolutePath, URLClassLoader cl) {
+
+		try {
+
+			//trying to load jar file
+			System.out.println("jar path = " + absolutePath); //DEBUG
+
+			List<String> classNames = new ArrayList<String>();
+			ZipInputStream zip = new ZipInputStream(new FileInputStream(absolutePath));
+
+			for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
+				if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
+					// This ZipEntry represents a class. Now, what class does it represent?
+					String className = entry.getName().replace('/', '.'); // including ".class"
+					classNames.add(className.substring(0, className.length() - ".class".length()));
+				}
+			}
+
+			//add jar contents to jtree
+			List<Class<?>> classes = new ArrayList<Class<?>>();
+			for(String s : classNames) {
+				System.out.println("Loading class - " + s); //DEBUG
+				classes.add(cl.loadClass(s));
+			}
+
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+
+			for(Class<?> c : classes) {
+				//				root.add(new DefaultMutableTreeNode(c.getName()));
+				loadClassDetails(root, c, cl);
+			}
+
+			zip.close();
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	
+	/**********************/
+	/***** Class File *****/
+	/**********************/
+	private void loadClassFile(String className, URLClassLoader cl) {
+
+		//trying to load class file
+
+		try {
+
+			Class<?> c = cl.loadClass(className);
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();			
+
+			loadClassDetails(root, c, cl);
+
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+
 
 	/************************************************************************************************************/
-	/************************************************************************************************************/
+	/***************************************** Listener Methods *************************************************/
 	/************************************************************************************************************/
 
 	@Override
@@ -526,7 +544,7 @@ public class TestWindow implements DialogListener {
 	}
 
 	/************************************************************************************************************/
-	/************************************************************************************************************/
+	/********************************************** Compile *****************************************************/
 	/************************************************************************************************************/
 
 	private void compileWithAspects() {

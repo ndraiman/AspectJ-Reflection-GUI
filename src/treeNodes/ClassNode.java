@@ -1,8 +1,5 @@
 package treeNodes;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +11,20 @@ public class ClassNode extends DefaultMutableTreeNode {
 	private Class<?> mClass;
 	private String mClassName;
 	private String mClassModifier;
+	private String mPackageName;
 	private List<ConstructorNode> mConstructors;
-	private List<VariableNode> mVariables;
+	private List<FieldNode> mFields;
 	private List<MethodNode> mMethods;
+
 	
 	public ClassNode(Class<?> c) {
 		
 		mClass = c;
-		mClassName = c.getName();
+		mClassName = c.getSimpleName();
 		mClassModifier = Modifier.toString(c.getModifiers());
+		mPackageName = c.getPackage().toString();
 		mConstructors = new ArrayList<ConstructorNode>();
-		mVariables = new ArrayList<VariableNode>();
+		mFields = new ArrayList<FieldNode>();
 		mMethods = new ArrayList<MethodNode>();
 		
 	}
@@ -38,8 +38,8 @@ public class ClassNode extends DefaultMutableTreeNode {
 		mConstructors.add(ctor);
 	}
 	
-	public void addVariable(VariableNode var) {
-		mVariables.add(var);
+	public void addField(FieldNode fld) {
+		mFields.add(fld);
 	}
 	
 	public void addMethod(MethodNode method) {
@@ -59,13 +59,17 @@ public class ClassNode extends DefaultMutableTreeNode {
 	public String getClassModifier() {
 		return mClassModifier;
 	}
+	
+	public String getPackageName() {
+		return mPackageName;
+	}
 
 	public List<ConstructorNode> getConstructors() {
 		return mConstructors;
 	}
 
-	public List<VariableNode> getVariables() {
-		return mVariables;
+	public List<FieldNode> getFields() {
+		return mFields;
 	}
 
 	public List<MethodNode> getMethods() {
