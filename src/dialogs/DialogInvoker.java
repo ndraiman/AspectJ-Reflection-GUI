@@ -25,6 +25,9 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import treeNodes.ConstructorNode;
+import treeNodes.FieldNode;
+import treeNodes.MethodNode;
 import extras.JoinpointContainer;
 import extras.PointcutContainer;
 
@@ -124,7 +127,7 @@ public class DialogInvoker {
 	/********************************* Pointcut Dialog *****************************************/
 	/*******************************************************************************************/
 
-	public void pointcutDialog(int type) {
+	public void pointcutDialog(int type, Object nodeContainer) {
 
 		//TODO add relation option between pointcut options (not\and\or)
 		mDialog = new JDialog(mParentFrame);
@@ -133,8 +136,6 @@ public class DialogInvoker {
 		contentPane.setLayout(new BorderLayout());
 
 		mDialog.setTitle("PointCut");
-
-
 
 		//pointcut name panel
 		JPanel namePanel = new JPanel();
@@ -161,7 +162,7 @@ public class DialogInvoker {
 		JComboBox<String> joinpoints = getComboBox(type);
 		joinpoints.setSelectedIndex(0);
 		joinpoints.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JTextField joinpointTextField = new JTextField(getPHString(type), 15);
+		JTextField joinpointTextField = new JTextField(nodeContainer == null ? getPHString(type) : getActualString(nodeContainer), 15);
 
 		joinpointPanel.add(typeList);
 		joinpointPanel.add(joinpoints);
@@ -472,6 +473,27 @@ public class DialogInvoker {
 
 		return null;
 		
+	}
+	
+	
+	private String getActualString(Object nodeContainer) {
+		
+//		if(nodeContainer instanceof FieldNode) {
+//			
+//			return nodeContainer.toString();
+//			
+//		} else if (nodeContainer instanceof MethodNode) {
+//			
+//			
+//		} else if (nodeContainer instanceof ConstructorNode) {
+//			
+//			
+//		}
+//		
+//		return "";
+		
+		//TODO change string to be Class.Method or Class.Field etc
+		return nodeContainer.toString();
 	}
 
 

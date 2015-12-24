@@ -133,7 +133,8 @@ public class MainWindow implements DialogListener {
 		tree = new JTree(root);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		//		tree.addTreeSelectionListener(this); //Remove listener implementation if this is removed
-
+		
+		//Mouse Listener
 		MouseListener mouse = new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -222,18 +223,34 @@ public class MainWindow implements DialogListener {
 			return;
 
 		System.out.println("Im a leaf!"); //DEBUG
+		String name = "";
+		int type = -1;
+		
 		if(selected instanceof FieldNode) {
 
-			System.out.println("Variable");
+			name = ((FieldNode) selected).getFldName();
+			type = DialogInvoker.TYPE_FIELD;
+			
+		} else if (selected instanceof MethodNode) {
+			
+			name = ((MethodNode) selected).getMethodName();
+			type = DialogInvoker.TYPE_METHOD;
+			
+		} else if (selected instanceof ConstructorNode) {
+			
+			name = ((ConstructorNode) selected).getCtorName();
+			type = DialogInvoker.TYPE_CONSTRUCTOR;
+			
+		}
 
-			int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for: " + ((FieldNode) selected).getFldName() + "?",
-					"Create Pointcut", JOptionPane.YES_NO_OPTION);
+		int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for: " + name + "?",
+				"Create Pointcut", JOptionPane.YES_NO_OPTION);
 
-			if(option == 0) {
-				new DialogInvoker(frame, MainWindow.this).pointcutDialog(DialogInvoker.TYPE_FIELD);
-				//TODO save pointcut
-			}
-		} 
+		if(option == 0) {
+			new DialogInvoker(frame, MainWindow.this).pointcutDialog(type, selected);
+			//TODO save pointcut
+		}
+
 
 	}
 
@@ -544,7 +561,7 @@ public class MainWindow implements DialogListener {
 	}
 
 	/************************************************************************************************************/
-	/********************************************** Compile *****************************************************/
+	/***************************************** Compile Aspects **************************************************/
 	/************************************************************************************************************/
 
 	private void compileWithAspects() {

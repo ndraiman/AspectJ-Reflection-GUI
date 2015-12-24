@@ -13,6 +13,7 @@ public class MethodNode extends DefaultMutableTreeNode {
 	private Method mMethod;
 	private String mMethodName;
 	private String mMethodModifier;
+	private String mMethodRetType;
 	private Class<?>[] mMethodParams;
 	
 	public MethodNode(Method m) {
@@ -21,12 +22,13 @@ public class MethodNode extends DefaultMutableTreeNode {
 		mMethodName = m.getName();
 		mMethodParams = m.getParameterTypes();
 		mMethodModifier = Modifier.toString(m.getModifiers());
+		mMethodRetType = m.getReturnType().getSimpleName();
 		
 	}
 
 	@Override
 	public String toString() {
-		String s = mMethodModifier + " " + mMethodName + "(";
+		String s = mMethodModifier + " " + mMethodRetType + " " + mMethodName + "(";
 		
 		for(int i = 0; i < mMethodParams.length; i++) {
 			s += mMethodParams[i].getSimpleName();
@@ -54,10 +56,15 @@ public class MethodNode extends DefaultMutableTreeNode {
 	public String getMethodModifier() {
 		return mMethodModifier;
 	}
+	
+	public String getMethodRetType() {
+		return mMethodRetType;
+	}
 
 	public Class<?>[] getMethodParams() {
 		return mMethodParams;
 	}
+	
 	
 	
 	
