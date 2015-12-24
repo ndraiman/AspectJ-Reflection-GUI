@@ -85,8 +85,8 @@ public class DialogInvoker {
 	/*******************************/
 	private final String PH_POINTCUT_NAME = "MyPointcut";
 	private final String PH_FIELD = "field";
-	private final String PH_METHOD = "retval Object.Method(arg)";
-	private final String PH_CONSTRUCTOR = "constructor()";
+	private final String PH_METHOD = "retType Object.Method(args)";
+	private final String PH_CONSTRUCTOR = "constructor(args)";
 	private final String PH_TYPE = "otherPointcut or Type";
 	
 	

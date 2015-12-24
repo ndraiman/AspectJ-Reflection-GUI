@@ -64,6 +64,14 @@ public class MainWindow implements DialogListener {
 	private JFrame frame;
 	private JTree tree;
 	
+	/*************************/
+	/***** Button Labels *****/
+	/*************************/
+	private final String LBL_LOAD_FILE = "Load Class/Jar";
+	private final String LBL_POINTCUT = "Add Pointcut";
+	private final String LBL_ADVICE = "Add Advice";
+	private final String LBL_COMPILE = "Compile";
+	
 	
 	/************************************************************************************************************/
 	/************************************************************************************************************/
@@ -158,7 +166,7 @@ public class MainWindow implements DialogListener {
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 
-		JButton btnLoadFile = new JButton("Load Class/Jar");
+		JButton btnLoadFile = new JButton(LBL_LOAD_FILE);
 		btnLoadFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
@@ -168,8 +176,19 @@ public class MainWindow implements DialogListener {
 				model.reload();
 			}
 		});
+		
+		
+		JButton btnPointcut = new JButton(LBL_POINTCUT);
+		btnPointcut.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new DialogInvoker(frame, MainWindow.this).pointcutDialog(0, null);				
+			}
+		});
+		
 
-		JButton btnAdvice = new JButton("Add Advice");
+		JButton btnAdvice = new JButton(LBL_ADVICE);
 		btnAdvice.addActionListener(new ActionListener() {
 
 			@Override
@@ -182,7 +201,7 @@ public class MainWindow implements DialogListener {
 			}
 		});
 
-		JButton btnCompile = new JButton("Compile");
+		JButton btnCompile = new JButton(LBL_COMPILE);
 		btnCompile.addActionListener(new ActionListener() {
 
 			@Override
@@ -195,6 +214,7 @@ public class MainWindow implements DialogListener {
 		
 		
 		buttonPanel.add(btnLoadFile);
+		buttonPanel.add(btnPointcut);
 		buttonPanel.add(btnAdvice);
 		buttonPanel.add(btnCompile);
 
@@ -241,6 +261,8 @@ public class MainWindow implements DialogListener {
 			name = ((ConstructorNode) selected).getCtorName();
 			type = DialogInvoker.TYPE_CONSTRUCTOR;
 			
+		} else {
+			return;
 		}
 
 		int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for: " + name + "?",
@@ -268,6 +290,10 @@ public class MainWindow implements DialogListener {
 		//Load Package name
 		DefaultMutableTreeNode packageNode = new DefaultMutableTreeNode(classNode.getPackageName());
 		classNode.add(packageNode);
+		
+		//Load Superclass
+		DefaultMutableTreeNode superclassNode = new DefaultMutableTreeNode("Superclass: " + c.getSuperclass().getName());
+		classNode.add(superclassNode);
 
 		//Load Constructors
 		Constructor<?>[] constructors = c.getDeclaredConstructors();

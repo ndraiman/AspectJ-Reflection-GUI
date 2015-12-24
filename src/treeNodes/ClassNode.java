@@ -20,7 +20,7 @@ public class ClassNode extends DefaultMutableTreeNode {
 	public ClassNode(Class<?> c) {
 		
 		mClass = c;
-		mClassName = c.getSimpleName();
+		mClassName = c.getName();
 		mClassModifier = Modifier.toString(c.getModifiers());
 		mPackageName = c.getPackage().toString();
 		mConstructors = new ArrayList<ConstructorNode>();
