@@ -272,12 +272,12 @@ public class MainWindow implements DialogListener {
 		
 		if(selected instanceof FieldNode) {
 
-			name = ((FieldNode) selected).getFldName();
+			name = ((FieldNode) selected).getName();
 			type = DialogInvoker.TYPE_FIELD;
 			
 		} else if (selected instanceof MethodNode) {
 			
-			name = ((MethodNode) selected).getMethodName();
+			name = ((MethodNode) selected).getName();
 			type = DialogInvoker.TYPE_METHOD;
 			
 		} else if (selected instanceof ConstructorNode) {

@@ -52,11 +52,11 @@ public class ClassNode extends DefaultMutableTreeNode {
 		return mClass;
 	}
 
-	public String getClassName() {
+	public String getName() {
 		return mClassName;
 	}
 
-	public String getClassModifier() {
+	public String getModifier() {
 		return mClassModifier;
 	}
 	

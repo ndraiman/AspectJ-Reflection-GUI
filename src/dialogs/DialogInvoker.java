@@ -79,6 +79,8 @@ public class DialogInvoker {
 	private JTextField mPointcutNameField;
 	
 	private final int JOINPOINT_COLUMNS = 4;
+	private final int JOINPOINT_TXTFLD_SIZE = 15;
+	private final int POINTCUT_TXTFLD_SIZE = 15;
 
 	/*******************************/
 	/***** Placeholder Strings *****/
@@ -140,12 +142,13 @@ public class DialogInvoker {
 
 		//pointcut name panel
 		JPanel namePanel = new JPanel();
-		namePanel.setLayout(new GridLayout(1, 2));
+//		namePanel.setLayout(new GridLayout(1, 2));
+		namePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		namePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		JLabel nameLabel = new JLabel("Name: ");
 		nameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		mPointcutNameField = new JTextField(PH_POINTCUT_NAME, 15);
+		mPointcutNameField = new JTextField(PH_POINTCUT_NAME, POINTCUT_TXTFLD_SIZE);
 		namePanel.add(nameLabel);
 		namePanel.add(mPointcutNameField);
 
@@ -163,7 +166,11 @@ public class DialogInvoker {
 		JComboBox<String> joinpoints = getComboBox(type);
 		joinpoints.setSelectedIndex(0);
 		joinpoints.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JTextField joinpointTextField = new JTextField(nodeContainer == null ? getPHString(type) : getActualString(nodeContainer), 15);
+//		String j = nodeContainer == null ? getPHString(type) : getActualString(nodeContainer);
+//		int k = j.length() > JOINPOINT_TXTFLD_SIZE ? j.length() : JOINPOINT_TXTFLD_SIZE;
+//		JTextField joinpointTextField = new JTextField(j, k);
+		JTextField joinpointTextField = new JTextField(nodeContainer == null ? getPHString(type) : getActualString(nodeContainer),
+				JOINPOINT_TXTFLD_SIZE);
 
 		joinpointPanel.add(typeList);
 		joinpointPanel.add(joinpoints);
@@ -231,7 +238,7 @@ public class DialogInvoker {
 		JComboBox<String> joinpoints = getComboBox(type);
 		joinpoints.setSelectedIndex(0);
 		joinpoints.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JTextField joinpointTextField = new JTextField(getPHString(type), 15);
+		JTextField joinpointTextField = new JTextField(getPHString(type), JOINPOINT_TXTFLD_SIZE);
 
 		JComboBox<String> typeList = new JComboBox<>(JOINPOINT_TYPES);
 		typeList.setSelectedIndex(type);
@@ -478,24 +485,52 @@ public class DialogInvoker {
 	}
 	
 	
-	private String getActualString(Object nodeContainer) {
+	private String getActualString(Object node) {
 		
-//		if(nodeContainer instanceof FieldNode) {
-//			
-//			return nodeContainer.toString();
-//			
-//		} else if (nodeContainer instanceof MethodNode) {
-//			
-//			
-//		} else if (nodeContainer instanceof ConstructorNode) {
-//			
-//			
-//		}
-//		
-//		return "";
+		String s = "";
+		
+		if(node instanceof FieldNode) {
+			
+			s = ((FieldNode) node).getName();
+						
+		} else if (node instanceof MethodNode) {
+			
+			MethodNode method = ((MethodNode) node);
+			s = method.getRetType() + " " + method.getMethodObject().getDeclaringClass().getName()
+					+ "." + method.getName() + "(";
+			
+			Class<?>[] methodArgs = method.getArgs();
+			for(int i = 0; i < methodArgs.length; i++) {
+				s += methodArgs[i].getSimpleName();
+				
+				if(methodArgs.length > 1 && i != methodArgs.length-1)
+					s += ", ";
+			}
+			s += ")";
+			
+		} else if (node instanceof ConstructorNode) {
+			
+			ConstructorNode ctor = ((ConstructorNode) node);
+			s =  ctor.getCtorName() + "(";
+			
+			Class<?>[] ctorArgs = ctor.getCtorArgs();
+			for(int i = 0; i < ctorArgs.length; i++) {
+				s += ctorArgs[i].getSimpleName();
+				
+				if(ctorArgs.length > 1 && i != ctorArgs.length-1)
+					s += ", ";
+			}
+			s += ")";
+			
+		}
+		
+		return s;
 		
 		//TODO change string to be Class.Method or Class.Field etc
-		return nodeContainer.toString();
+		
+		
+		
+//		return node.toString();
 	}
 
 

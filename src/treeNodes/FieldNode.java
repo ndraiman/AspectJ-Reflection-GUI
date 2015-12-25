@@ -32,22 +32,22 @@ public class FieldNode extends DefaultMutableTreeNode {
 	/********* Getters **********/
 
 
-	public Field getField() {
+	public Field getFieldObject() {
 		return mField;
 	}
 
 
-	public String getFldName() {
+	public String getName() {
 		return mFldName;
 	}
 
 
-	public String getFldType() {
+	public String getType() {
 		return mFldType;
 	}
 
 
-	public String getFldModifier() {
+	public String getModifier() {
 		return mFldModifier;
 	}
 	

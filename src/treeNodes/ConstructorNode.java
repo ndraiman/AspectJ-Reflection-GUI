@@ -10,7 +10,7 @@ public class ConstructorNode extends DefaultMutableTreeNode {
 	private Constructor<?> mConstructor;
 	private String mCtorName;
 	private String mCtorModifiers;
-	private Class<?>[] mCtorParams;
+	private Class<?>[] mCtorArgs;
 	
 	
 	public ConstructorNode(Constructor<?> ctor) {
@@ -18,7 +18,7 @@ public class ConstructorNode extends DefaultMutableTreeNode {
 		mConstructor = ctor;
 		mCtorName = ctor.getName();
 		mCtorModifiers = Modifier.toString(ctor.getModifiers());
-		mCtorParams = ctor.getParameterTypes();
+		mCtorArgs = ctor.getParameterTypes();
 		
 	}
 
@@ -28,10 +28,10 @@ public class ConstructorNode extends DefaultMutableTreeNode {
 		
 		String s = mCtorModifiers + " " + mCtorName + "(";
 		
-		for(int i = 0; i < mCtorParams.length; i++) {
-			s += mCtorParams[i].getSimpleName();
+		for(int i = 0; i < mCtorArgs.length; i++) {
+			s += mCtorArgs[i].getSimpleName();
 			
-			if(mCtorParams.length > 1 && i != mCtorParams.length-1)
+			if(mCtorArgs.length > 1 && i != mCtorArgs.length-1)
 				s += ", ";
 		}
 		s += ")";
@@ -57,8 +57,8 @@ public class ConstructorNode extends DefaultMutableTreeNode {
 	}
 
 
-	public Class<?>[] getCtorParams() {
-		return mCtorParams;
+	public Class<?>[] getCtorArgs() {
+		return mCtorArgs;
 	}
 	
 	
