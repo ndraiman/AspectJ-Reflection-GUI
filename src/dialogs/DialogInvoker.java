@@ -3,6 +3,8 @@ package dialogs;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -79,8 +81,10 @@ public class DialogInvoker {
 	private JTextField mPointcutNameField;
 	
 	private final int JOINPOINT_COLUMNS = 4;
-	private final int JOINPOINT_TXTFLD_SIZE = 15;
+	private final int JOINPOINT_TXTFLD_SIZE = 25;
 	private final int POINTCUT_TXTFLD_SIZE = 15;
+	
+	private int joinpoint_rows = 0;
 
 	/*******************************/
 	/***** Placeholder Strings *****/
@@ -142,7 +146,6 @@ public class DialogInvoker {
 
 		//pointcut name panel
 		JPanel namePanel = new JPanel();
-//		namePanel.setLayout(new GridLayout(1, 2));
 		namePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		namePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -156,7 +159,7 @@ public class DialogInvoker {
 
 		//joinpoint panel
 		JPanel joinpointPanel = new JPanel();
-		joinpointPanel.setLayout(new GridLayout(1, JOINPOINT_COLUMNS));
+		joinpointPanel.setLayout(new GridBagLayout());
 		joinpointPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		JComboBox<String> typeList = new JComboBox<>(JOINPOINT_TYPES);
@@ -166,17 +169,31 @@ public class DialogInvoker {
 		JComboBox<String> joinpoints = getComboBox(type);
 		joinpoints.setSelectedIndex(0);
 		joinpoints.setBorder(new EmptyBorder(10, 10, 10, 10));
-//		String j = nodeContainer == null ? getPHString(type) : getActualString(nodeContainer);
-//		int k = j.length() > JOINPOINT_TXTFLD_SIZE ? j.length() : JOINPOINT_TXTFLD_SIZE;
-//		JTextField joinpointTextField = new JTextField(j, k);
 		JTextField joinpointTextField = new JTextField(nodeContainer == null ? getPHString(type) : getActualString(nodeContainer),
 				JOINPOINT_TXTFLD_SIZE);
 
-		joinpointPanel.add(typeList);
-		joinpointPanel.add(joinpoints);
-		joinpointPanel.add(joinpointTextField);
-		joinpointPanel.add(new JPanel()); //add empty panel for 3rd col
+		
+		
+		//Setup components in layout
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = joinpoint_rows;
+		joinpointPanel.add(typeList, c);
+		c.gridx = 1;
+		c.gridy = joinpoint_rows;
+		joinpointPanel.add(joinpoints, c);
+		c.gridx = 5;
+		c.gridy = joinpoint_rows;
+		joinpointPanel.add(new JPanel(), c); //add empty panel for 3rd col
+		c.gridx = 2;
+		c.gridy = joinpoint_rows;
+		c.weightx = 1.0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = 3;
+		joinpointPanel.add(joinpointTextField,c);
 
+		
+		
 		listJoinpointText.add(joinpointTextField);
 		listJoinpoints.add(joinpoints);
 		listJoinpointType.add(typeList);
@@ -250,8 +267,6 @@ public class DialogInvoker {
 		closePanel.add(btnClose);
 
 
-		int rows = ((GridLayout) panel.getLayout()).getRows();
-		((GridLayout) panel.getLayout()).setRows(rows + 1);
 
 		btnClose.addActionListener(new ActionListener() {
 
@@ -273,10 +288,9 @@ public class DialogInvoker {
 				panel.remove(index - 1);
 				panel.remove(index - 2);
 				panel.remove(index - 3);
+				joinpoint_rows--;
 
-				int rows = ((GridLayout) panel.getLayout()).getRows();
-				((GridLayout) panel.getLayout()).setRows(rows - 1);
-
+				
 				panel.validate();
 				panel.repaint();
 				mDialog.pack();
@@ -288,11 +302,27 @@ public class DialogInvoker {
 
 		
 		
-		panel.add(typeList);
-		panel.add(joinpoints);
-		panel.add(joinpointTextField);
-		panel.add(closePanel);
+		//Setup components in layout
+		joinpoint_rows++;
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 0;
+		c.gridy = joinpoint_rows;
+		panel.add(typeList, c);
+		c.gridx = 1;
+		c.gridy = joinpoint_rows;
+		panel.add(joinpoints, c);
+		c.gridx = 5;
+		c.gridy = joinpoint_rows;
+		panel.add(closePanel, c);
+		c.gridx = 2;
+		c.gridy = joinpoint_rows;
+		c.weightx = 1.0;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridwidth = 3;
+		panel.add(joinpointTextField,c);
 
+		
+		
 		listJoinpointButtonList.add(btnClose);
 		listJoinpointText.add(joinpointTextField);
 		listJoinpoints.add(joinpoints);
