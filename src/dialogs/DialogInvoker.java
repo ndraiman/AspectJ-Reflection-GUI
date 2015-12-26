@@ -83,8 +83,11 @@ public class DialogInvoker {
 	private final int JOINPOINT_COLUMNS = 4;
 	private final int JOINPOINT_TXTFLD_SIZE = 25;
 	private final int POINTCUT_TXTFLD_SIZE = 15;
+	private final int ADVICE_TXTFLD_SIZE = 10;
 	
 	private int joinpoint_rows = 0;
+	private boolean isAdviceAround = false;
+	private JTextField mAdviceRetType;
 
 	/*******************************/
 	/***** Placeholder Strings *****/
@@ -101,7 +104,7 @@ public class DialogInvoker {
 	/***********************************/
 	private final String CMD_SAVE = "save";
 	private final String CMD_CANCEL = "cancel";
-	private final String COMBO_BOX_TYPE = "joinpoint type";
+	private final String JOINPOINT_TYPE = "joinpoint type";
 	
 	
 	/*************************/
@@ -216,7 +219,7 @@ public class DialogInvoker {
 		//Action Listener
 		btnSave.setActionCommand(CMD_SAVE);
 		btnCancel.setActionCommand(CMD_CANCEL);
-		typeList.setActionCommand(COMBO_BOX_TYPE);
+		typeList.setActionCommand(JOINPOINT_TYPE);
 
 		MyActionListener actionListener = new MyActionListener();
 		btnSave.addActionListener(actionListener);
@@ -297,7 +300,7 @@ public class DialogInvoker {
 			}
 		});
 		
-		typeList.setActionCommand(COMBO_BOX_TYPE);
+		typeList.setActionCommand(JOINPOINT_TYPE);
 		typeList.addActionListener(listener);
 
 		
@@ -351,14 +354,14 @@ public class DialogInvoker {
 		JPanel buttonPane = new JPanel();
 		JPanel pointcutPanel = new JPanel();
 
-		mDialog.setBounds(100, 100, 450, 300);
+		mDialog.setBounds(100, 100, 450, 400);
 		mDialog.getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPanel.setLayout(new BorderLayout(0, 0));
 
 
 
-		//add TextArea
+		//TextArea Panel
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 		textArea.setCodeFoldingEnabled(true);
 
@@ -367,15 +370,14 @@ public class DialogInvoker {
 
 
 
-		//add Buttons
-		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		//Buttons Panel
+		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));		
 
 		JButton btnSave = new JButton("Save");
-		buttonPane.add(btnSave);
+		JButton btnCancel = new JButton("Cancel");
 		mDialog.getRootPane().setDefaultButton(btnSave);
 
-
-		JButton btnCancel = new JButton("Cancel");
+		buttonPane.add(btnSave);
 		buttonPane.add(btnCancel);
 
 		btnSave.addActionListener(new ActionListener() {
@@ -399,19 +401,57 @@ public class DialogInvoker {
 
 
 
-		//add pointcuts
-		pointcutPanel.setLayout(new GridLayout(1, 2));
+		//Pointcuts panel
+		pointcutPanel.setLayout(new GridBagLayout());
 		pointcutPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		Vector<String> createdPointcuts = new Vector<>();
 		for(int i = 0; i < pointcuts.size(); i++) {
-			createdPointcuts.add(pointcuts.get(i).getName().toString());
+			createdPointcuts.add(pointcuts.get(i).getName());
 		}
 		JComboBox<String> listPointcuts = new JComboBox<>(createdPointcuts);
 		JComboBox<String> adviceOptions = new JComboBox<>(ADVICE_OPTIONS);
-		pointcutPanel.add(adviceOptions);
-		pointcutPanel.add(listPointcuts);
+		
+		listPointcuts.setBorder(new EmptyBorder(10, 10, 10, 10));
+		adviceOptions.setBorder(new EmptyBorder(10, 10, 10, 10));
+		
+		GridBagConstraints c = new GridBagConstraints();
+		c.gridx = 1;
+		pointcutPanel.add(adviceOptions, c);
+		c.gridx = 2;
+		c.ipadx = 100;
+		pointcutPanel.add(listPointcuts, c);
 
+		
+		adviceOptions.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				JComboBox<String> advice = (JComboBox<String>) e.getSource();
+				String selected = (String) advice.getSelectedItem();
+				String around = ADVICE_OPTIONS[2];
+				GridBagConstraints c = new GridBagConstraints();
+				
+				if(selected.equals(around)) {
+					
+					isAdviceAround = true;
+					mAdviceRetType = new JTextField("retType", ADVICE_TXTFLD_SIZE);
+					c.gridx = 0;
+					pointcutPanel.add(mAdviceRetType, c);
+					
+				} else if(isAdviceAround) {
+					
+					isAdviceAround = false;
+					pointcutPanel.remove(mAdviceRetType);
+					mAdviceRetType = null;
+				}
+				
+				
+				pointcutPanel.validate();
+				pointcutPanel.repaint();
+			}
+		});
 
 
 		//add panels to dialog
@@ -603,7 +643,7 @@ public class DialogInvoker {
 				break;
 
 
-			case COMBO_BOX_TYPE:
+			case JOINPOINT_TYPE:
 				
 				int index = listJoinpointType.indexOf((JComboBox<?>) e.getSource());
 				JComboBox<String> j = listJoinpoints.get(index);
@@ -614,6 +654,8 @@ public class DialogInvoker {
 
 				//TODO should textfield change? what if the user already have input in text field????
 				break;
+				
+		
 
 			}
 		}

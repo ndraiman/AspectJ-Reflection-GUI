@@ -69,6 +69,8 @@ public class MainWindow implements DialogListener {
 	private JFrame frame;
 	private JTree tree;
 	
+	private boolean isJar = false;
+	
 	private final String INSTRUCTIONS = "Double click a Constructor/Method/Field\ninside a class to quickly create a Pointcut for it";
 	
 	/*************************/
@@ -193,10 +195,8 @@ public class MainWindow implements DialogListener {
 		btnLoadFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 
-				DefaultTreeModel model = ((DefaultTreeModel) tree.getModel());
-				((DefaultMutableTreeNode) model.getRoot()).removeAllChildren();
 				loadFile();
-				model.reload();
+
 			}
 		});
 		
@@ -312,7 +312,9 @@ public class MainWindow implements DialogListener {
 
 	//TODO at the moment it loads only un-inherited fields/methods etc
 	private void loadClassDetails(DefaultMutableTreeNode parent, Class<?> c, URLClassLoader cl) {
-
+		
+		isJar = false;
+		
 		ClassNode classNode = new ClassNode(c);
 		parent.add(classNode);
 		
@@ -321,8 +323,11 @@ public class MainWindow implements DialogListener {
 		classNode.add(packageNode);
 		
 		//Load Superclass
-		DefaultMutableTreeNode superclassNode = new DefaultMutableTreeNode("Superclass: " + c.getSuperclass().getName());
-		classNode.add(superclassNode);
+		Class<?> superclass = c.getSuperclass();
+		if(superclass != null) {
+			DefaultMutableTreeNode superclassNode = new DefaultMutableTreeNode("Superclass: " + superclass.getName());
+			classNode.add(superclassNode);
+		}
 
 		//Load Constructors
 		Constructor<?>[] constructors = c.getDeclaredConstructors();
@@ -447,10 +452,18 @@ public class MainWindow implements DialogListener {
 		int returnVal = chooser.showOpenDialog(frame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			
+			//reset JTree
+			DefaultTreeModel model = ((DefaultTreeModel) tree.getModel());
+			((DefaultMutableTreeNode) model.getRoot()).removeAllChildren();
+			
 			myFile = chooser.getSelectedFile();
 			mInPath = myFile.getAbsolutePath();
 
 			readFile(myFile);
+			
+			//expand root node
+			model.reload();
 
 		} else {
 			System.out.println("filechooser canceled");
@@ -528,7 +541,9 @@ public class MainWindow implements DialogListener {
 	/***** Jar File *****/
 	/********************/
 	private void loadJarFile(String absolutePath, URLClassLoader cl) {
-
+		
+		isJar = true;
+		
 		try {
 
 			//trying to load jar file
