@@ -1,5 +1,7 @@
 package main;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -11,6 +13,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -37,9 +40,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
+import javax.swing.text.DefaultCaret;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -47,6 +52,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
+import console.CustomOutputStream;
+import console.MessageConsole;
 import testPackage.Car;
 import treeNodes.ClassNode;
 import treeNodes.ConstructorNode;
@@ -130,7 +137,7 @@ public class MainWindow implements DialogListener {
 	private void initialize() {
 
 		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 400);
+		frame.setBounds(100, 100, 450, 600);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(new BorderLayout(0, 0));
 		frame.setTitle("AspectJ GUI");
@@ -240,18 +247,72 @@ public class MainWindow implements DialogListener {
 		buttonPanel.add(btnPointcut);
 		buttonPanel.add(btnAdvice);
 		buttonPanel.add(btnCompile);
+		
+		JPanel contentPanel = new JPanel();
+		contentPanel.setLayout(new BorderLayout());
+		contentPanel.add(instructionPanel, BorderLayout.NORTH);
+		contentPanel.add(treePanel, BorderLayout.CENTER);
+		contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+		
+//		frame.getContentPane().add(instructionPanel, BorderLayout.NORTH);
+//		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
+//		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
+		
+		JPanel consolePanel = initConsolePanel();
 
-		frame.getContentPane().add(instructionPanel, BorderLayout.NORTH);
-		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
-		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-
-
+		frame.getContentPane().add(contentPanel, BorderLayout.CENTER);
+		frame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
 
 		//DEBUG LoadClassDetails
 		loadClassDetails(root, Car.class, null);
 		((DefaultTreeModel) tree.getModel()).reload();
 	}
 
+	
+	
+	/************************************************************************************************************/
+	/***************************************** Console Panel ****************************************************/
+	/************************************************************************************************************/
+	
+	private JPanel initConsolePanel() {
+		
+		JPanel consolePanel = new JPanel();
+		consolePanel.setLayout(new BorderLayout());
+		
+		JLabel lblConsole = new JLabel("Console Output: ");
+		
+//		JTextArea console = new JTextArea(10, 20);
+//		console.setEditable(false);
+//		console.setBackground(Color.WHITE);
+//		console.setLineWrap(true);
+		
+		//Set update policy to always scroll to bottom of console
+//		DefaultCaret caret = (DefaultCaret)console.getCaret();
+//		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		
+		JTextPane console = new JTextPane();
+		console.setBackground(Color.WHITE);
+		
+		JScrollPane consoleScrollPanel = new JScrollPane (console, 
+				   JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		
+		consoleScrollPanel.setPreferredSize(new Dimension(100, 200));		
+		
+		consolePanel.add(consoleScrollPanel, BorderLayout.CENTER);
+		consolePanel.add(lblConsole, BorderLayout.NORTH);
+		
+		MessageConsole mc = new MessageConsole(console);
+		mc.redirectOut();
+		mc.redirectErr(Color.RED, null);
+		mc.setMessageLines(100);
+		
+//		PrintStream printStream = new PrintStream(new CustomOutputStream(console)); 
+//		System.setOut(printStream);
+//		System.setErr(printStream);
+		
+		
+		return consolePanel;
+	}
 
 	/************************************************************************************************************/
 	/************************************** Handle Tree Clicks **************************************************/
@@ -684,5 +745,4 @@ public class MainWindow implements DialogListener {
 		AjcRunner.compileWithAspects(inpath, sourceroots);
 
 	}
-
 }
