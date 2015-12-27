@@ -22,7 +22,10 @@ public class ClassNode extends DefaultMutableTreeNode {
 		mClass = c;
 		mClassName = c.getName();
 		mClassModifier = Modifier.toString(c.getModifiers());
-		mPackageName = c.getPackage().toString();
+		
+		Package p = c.getPackage();
+		mPackageName = p != null? p.toString() : null;
+		
 		mConstructors = new ArrayList<ConstructorNode>();
 		mFields = new ArrayList<FieldNode>();
 		mMethods = new ArrayList<MethodNode>();

@@ -258,10 +258,10 @@ public class MainWindow implements DialogListener {
 //		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
 //		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
 		
-		JPanel consolePanel = initConsolePanel();
-
+//		JPanel consolePanel = initConsolePanel();
+//
+//		frame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
 		frame.getContentPane().add(contentPanel, BorderLayout.CENTER);
-		frame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
 
 		//DEBUG LoadClassDetails
 		loadClassDetails(root, Car.class, null);
@@ -374,14 +374,16 @@ public class MainWindow implements DialogListener {
 	//TODO at the moment it loads only un-inherited fields/methods etc
 	private void loadClassDetails(DefaultMutableTreeNode parent, Class<?> c, URLClassLoader cl) {
 		
-		isJar = false;
 		
 		ClassNode classNode = new ClassNode(c);
 		parent.add(classNode);
 		
 		//Load Package name
-		DefaultMutableTreeNode packageNode = new DefaultMutableTreeNode(classNode.getPackageName());
-		classNode.add(packageNode);
+		String classPackage = classNode.getPackageName(); 
+		if(classPackage != null) {
+			DefaultMutableTreeNode packageNode = new DefaultMutableTreeNode(classPackage);
+			classNode.add(packageNode);
+		}
 		
 		//Load Superclass
 		Class<?> superclass = c.getSuperclass();
@@ -505,8 +507,8 @@ public class MainWindow implements DialogListener {
 		OpenFileFilter classFilter = new OpenFileFilter("class","*.class File");
 		chooser.addChoosableFileFilter(jarFilter);
 		chooser.addChoosableFileFilter(classFilter);
-		//		chooser.setFileFilter(jarFilter);
-		chooser.setFileFilter(classFilter); //default filter
+		chooser.setFileFilter(jarFilter);
+//		chooser.setFileFilter(classFilter); //default filter
 		chooser.setAcceptAllFileFilterUsed(false);
 
 
@@ -660,6 +662,7 @@ public class MainWindow implements DialogListener {
 	private void loadClassFile(String className, URLClassLoader cl) {
 
 		//trying to load class file
+		isJar = false;
 
 		try {
 
@@ -725,7 +728,7 @@ public class MainWindow implements DialogListener {
 		//TODO create a save dialog for the aspect
 		//TODO make sure it is saved in a directory with write permissions (let user handle it)
 
-		java.nio.file.Path savePath = Paths.get("/aspecttest.aj"); //TODO change to real path - form save dialog
+		java.nio.file.Path savePath = Paths.get("D:/aspecttest.aj"); //TODO change to real path - form save dialog
 		byte[] data = s.getBytes();
 		
 
@@ -738,11 +741,24 @@ public class MainWindow implements DialogListener {
 		}
 		
 		
+		//sourceroot & inpath directories
 		String sourceroots = savePath.getParent().toAbsolutePath().toString();
-		String inpath = Paths.get(mInPath).getParent().toAbsolutePath().toString();
+		String inpath; // = Paths.get(mInPath).getParent().toAbsolutePath().toString();
 
 		
-		AjcRunner.compileWithAspects(inpath, sourceroots);
+		
+		if(isJar){
+			
+			inpath = Paths.get(mInPath).toString();
+			String outjar = "D:\\blat.jar"; //TODO let user specify path and filename
+			AjcRunner.compileJar(inpath, sourceroots, outjar);
+			
+		} else {
+			
+			inpath = Paths.get(mInPath).getParent().toAbsolutePath().toString();
+			AjcRunner.compileClass(inpath, sourceroots);
+			
+		}
 
 	}
 }

@@ -14,8 +14,10 @@ public class AjcRunner {
 //    }
     
     
-    public static void compileWithAspects(String inpath, String sourceroots) {
-    	System.out.println("AjcRunner - inpath = " + inpath + ", sourceroots = " + sourceroots);
+	//TODO make AjcRunner not close program and print output to console
+	
+    public static void compileClass(String inpath, String sourceroots) {
+    	System.out.println("compileClass - inpath = " + inpath + ", sourceroots = " + sourceroots);
     	
     	String[] ajcArgs = {"-1.8",
     			"-sourceroots", sourceroots,
@@ -26,8 +28,26 @@ public class AjcRunner {
 			Main.main(ajcArgs);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+//			e.printStackTrace();
+			System.out.println(e);
+		}
+    }
+    
+    public static void compileJar(String inpath, String sourceroots, String outjar) {
+    	System.out.println("compileJar - inpath = " + inpath + ", sourceroots = " + sourceroots);
+    	
+    	String[] ajcArgs = {"-1.8",
+    			"-sourceroots", sourceroots,
+    			"-inpath", inpath,
+    			"-outjar", outjar}; 
+    	
+    	try {
+    		
+			Main.main(ajcArgs);
+			
+		} catch (IOException e) {
+//			e.printStackTrace();
+			System.out.println(e);
 		}
     }
 }
