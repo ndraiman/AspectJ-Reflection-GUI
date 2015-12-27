@@ -39,7 +39,27 @@ public class AjcRunner {
     	String[] ajcArgs = {"-1.8",
     			"-sourceroots", sourceroots,
     			"-inpath", inpath,
-    			"-outjar", outjar}; 
+    			"-outjar", outjar};
+    	
+//    	String[] ajcArgs = {"-1.8",
+//    			"-sourceroots", "C:\\Users\\ND88\\Desktop\\jar test\\test",
+//    			"-inpath", "C:\\Users\\ND88\\Desktop\\jar test\\test\\TestJar.jar",
+//    			"-outjar", "C:\\Users\\ND88\\Desktop\\kaki.jar"}; 
+//    	
+//    	
+//    	new Thread(new Runnable() {
+//			
+//			@Override
+//			public void run() {
+//				
+//				try {
+//					Main.main(ajcArgs);
+//				} catch (IOException e) {
+//					System.out.println(e);
+//				}
+//				
+//			}
+//		}).start();
     	
     	try {
     		

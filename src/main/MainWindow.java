@@ -728,7 +728,7 @@ public class MainWindow implements DialogListener {
 		//TODO create a save dialog for the aspect
 		//TODO make sure it is saved in a directory with write permissions (let user handle it)
 
-		java.nio.file.Path savePath = Paths.get("D:/aspecttest.aj"); //TODO change to real path - form save dialog
+		java.nio.file.Path savePath = Paths.get("D:/TestAspect.aj"); //TODO change to real path - form save dialog
 		byte[] data = s.getBytes();
 		
 
@@ -743,15 +743,18 @@ public class MainWindow implements DialogListener {
 		
 		//sourceroot & inpath directories
 		String sourceroots = savePath.getParent().toAbsolutePath().toString();
-		String inpath; // = Paths.get(mInPath).getParent().toAbsolutePath().toString();
-
+		String inpath;
 		
 		
 		if(isJar){
 			
 			inpath = Paths.get(mInPath).toString();
-			String outjar = "D:\\blat.jar"; //TODO let user specify path and filename
+			String outjar = saveJar();
+			System.out.println(outjar);
+			if(outjar == null) 
+				return;
 			AjcRunner.compileJar(inpath, sourceroots, outjar);
+			
 			
 		} else {
 			
@@ -760,5 +763,34 @@ public class MainWindow implements DialogListener {
 			
 		}
 
+	}
+	
+	
+	
+	/***************************/
+	/***** Save Jar Dialog *****/
+	/***************************/
+	private String saveJar() {
+		
+		File myFile;
+		JFileChooser chooser = new JFileChooser();
+
+		OpenFileFilter jarFilter = new OpenFileFilter("jar","*.jar File");
+		chooser.addChoosableFileFilter(jarFilter);
+		chooser.setFileFilter(jarFilter);
+		chooser.setAcceptAllFileFilterUsed(false);
+
+
+		int returnVal = chooser.showSaveDialog(frame);
+		
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+						
+			myFile = chooser.getSelectedFile();
+			return myFile.getAbsolutePath() + ".jar";
+			
+		}
+		
+		return null;
+		
 	}
 }
