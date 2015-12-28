@@ -73,8 +73,8 @@ public class MainWindow implements DialogListener {
 	private List<AdviceContainer> mAdvices;
 	private String mInPath;
 
-	private JFrame frame;
-	private JTree tree;
+	private JFrame mFrame;
+	private JTree mTree;
 	
 	private boolean isJar = false;
 	
@@ -95,7 +95,7 @@ public class MainWindow implements DialogListener {
 
 
 	public JFrame getFrame() {
-		return frame;
+		return mFrame;
 	}
 
 	/**
@@ -107,7 +107,7 @@ public class MainWindow implements DialogListener {
 			public void run() {
 				try {
 					MainWindow window = new MainWindow();
-					window.frame.setVisible(true);
+					window.mFrame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -136,11 +136,11 @@ public class MainWindow implements DialogListener {
 	 */
 	private void initialize() {
 
-		frame = new JFrame();
-		frame.setBounds(100, 100, 450, 600);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(new BorderLayout(0, 0));
-		frame.setTitle("AspectJ GUI");
+		mFrame = new JFrame();
+		mFrame.setBounds(100, 100, 450, 600);
+		mFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		mFrame.getContentPane().setLayout(new BorderLayout(0, 0));
+		mFrame.setTitle("AspectJ GUI");
 
 		//Open Frame in middle of screen
 		//		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -170,8 +170,8 @@ public class MainWindow implements DialogListener {
 		treePanel.setLayout(new BorderLayout(0, 0));
 
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Loaded Classes");
-		tree = new JTree(root);
-		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		mTree = new JTree(root);
+		mTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		//		tree.addTreeSelectionListener(this); //Remove listener implementation if this is removed
 		
 		//Mouse Listener
@@ -179,7 +179,7 @@ public class MainWindow implements DialogListener {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 
-				int selectedRow = tree.getRowForLocation(e.getX(), e.getY());
+				int selectedRow = mTree.getRowForLocation(e.getX(), e.getY());
 				if(selectedRow != -1 && e.getClickCount() == 2) {
 					treeDoubleClick(selectedRow);
 				}
@@ -187,9 +187,9 @@ public class MainWindow implements DialogListener {
 			}
 		};
 
-		tree.addMouseListener(mouse);
+		mTree.addMouseListener(mouse);
 
-		JScrollPane scrollPane = new JScrollPane(tree);
+		JScrollPane scrollPane = new JScrollPane(mTree);
 		treePanel.add(scrollPane, BorderLayout.CENTER);
 
 		/************************/
@@ -213,7 +213,7 @@ public class MainWindow implements DialogListener {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new DialogInvoker(frame, MainWindow.this).pointcutDialog(0, null);				
+				new DialogInvoker(mFrame, MainWindow.this).pointcutDialog(0, null);				
 			}
 		});
 		
@@ -224,7 +224,7 @@ public class MainWindow implements DialogListener {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				//				new DialogCodeEditor(TestWindow.this).setVisible(true);
-				new DialogInvoker(frame, MainWindow.this).adviceDialog(mPointcuts);
+				new DialogInvoker(mFrame, MainWindow.this).adviceDialog(mPointcuts);
 				//TODO dialog should show list of created pointcuts
 				//TODO save advice
 
@@ -260,12 +260,12 @@ public class MainWindow implements DialogListener {
 		
 //		JPanel consolePanel = initConsolePanel();
 //
-//		frame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
-		frame.getContentPane().add(contentPanel, BorderLayout.CENTER);
+//		mFrame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
+		mFrame.getContentPane().add(contentPanel, BorderLayout.CENTER);
 
 		//DEBUG LoadClassDetails
 		loadClassDetails(root, Car.class, null);
-		((DefaultTreeModel) tree.getModel()).reload();
+		((DefaultTreeModel) mTree.getModel()).reload();
 	}
 
 	
@@ -322,7 +322,7 @@ public class MainWindow implements DialogListener {
 
 		System.out.println("double clicked row " + row);
 		//		tree.getSelectionPath().getPathComponent(row);
-		DefaultMutableTreeNode selected = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+		DefaultMutableTreeNode selected = (DefaultMutableTreeNode) mTree.getLastSelectedPathComponent();
 
 		if(!selected.isLeaf())
 			return;
@@ -350,11 +350,11 @@ public class MainWindow implements DialogListener {
 			return;
 		}
 
-		int option = JOptionPane.showConfirmDialog(frame, "Create pointcut for: " + name + "?",
+		int option = JOptionPane.showConfirmDialog(mFrame, "Create pointcut for: " + name + "?",
 				"Create Pointcut", JOptionPane.YES_NO_OPTION);
 
 		if(option == 0) {
-			new DialogInvoker(frame, MainWindow.this).pointcutDialog(type, selected);
+			new DialogInvoker(mFrame, MainWindow.this).pointcutDialog(type, selected);
 			
 			//TODO add option to add to an existing pointcut!
 			
@@ -512,12 +512,12 @@ public class MainWindow implements DialogListener {
 		chooser.setAcceptAllFileFilterUsed(false);
 
 
-		int returnVal = chooser.showOpenDialog(frame);
+		int returnVal = chooser.showOpenDialog(mFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			
 			//reset JTree
-			DefaultTreeModel model = ((DefaultTreeModel) tree.getModel());
+			DefaultTreeModel model = ((DefaultTreeModel) mTree.getModel());
 			((DefaultMutableTreeNode) model.getRoot()).removeAllChildren();
 			
 			myFile = chooser.getSelectedFile();
@@ -630,7 +630,7 @@ public class MainWindow implements DialogListener {
 				classes.add(cl.loadClass(s));
 			}
 
-			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) mTree.getModel().getRoot();
 
 			for(Class<?> c : classes) {
 				//				root.add(new DefaultMutableTreeNode(c.getName()));
@@ -667,7 +667,7 @@ public class MainWindow implements DialogListener {
 		try {
 
 			Class<?> c = cl.loadClass(className);
-			DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getModel().getRoot();			
+			DefaultMutableTreeNode root = (DefaultMutableTreeNode) mTree.getModel().getRoot();			
 
 			loadClassDetails(root, c, cl);
 
@@ -727,41 +727,73 @@ public class MainWindow implements DialogListener {
 		//TODO create the aspect
 		//TODO create a save dialog for the aspect
 		//TODO make sure it is saved in a directory with write permissions (let user handle it)
-
-		java.nio.file.Path savePath = Paths.get("D:/TestAspect.aj"); //TODO change to real path - form save dialog
-		byte[] data = s.getBytes();
 		
-
-		try {
-			
-			Files.write(savePath, data, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-			
-		} catch (IOException e) {
-			System.err.println(e);
+		
+		String aspectName = JOptionPane.showInputDialog(mFrame,
+				"Save Aspect as",
+				"Aspect Name?", 
+				JOptionPane.QUESTION_MESSAGE);
+		
+		if(aspectName == null || aspectName.isEmpty())
+			return;
+		
+		String aspectPath = "aspects/" + aspectName + ".aj";
+		
+		System.out.println("Aspect Name = " + aspectName);
+		System.out.println("Path = " + Paths.get(aspectPath).toAbsolutePath());
+		
+		
+		StringBuilder aspectBuilder = new StringBuilder();
+		aspectBuilder.append("public aspect " + aspectName + " { \n");
+		
+		for(PointcutContainer p : mPointcuts) {
+			aspectBuilder.append(p + "\n");
 		}
-		
-		
-		//sourceroot & inpath directories
-		String sourceroots = savePath.getParent().toAbsolutePath().toString();
-		String inpath;
-		
-		
-		if(isJar){
-			
-			inpath = Paths.get(mInPath).toString();
-			String outjar = saveJar();
-			System.out.println(outjar);
-			if(outjar == null) 
-				return;
-			AjcRunner.compileJar(inpath, sourceroots, outjar);
-			
-			
-		} else {
-			
-			inpath = Paths.get(mInPath).getParent().toAbsolutePath().toString();
-			AjcRunner.compileClass(inpath, sourceroots);
-			
+		aspectBuilder.append("\n");
+		for(AdviceContainer a : mAdvices){
+			aspectBuilder.append(a + "\n");
 		}
+		aspectBuilder.append("} \n");
+		
+		System.out.println(aspectBuilder.toString());
+		
+		//TODO save aspect to file
+		/*************************************/
+
+//		java.nio.file.Path savePath = Paths.get("D:/TestAspect.aj"); //TODO change to real path - form save dialog
+//		byte[] data = s.getBytes();
+//		
+//
+//		try {
+//			
+//			Files.write(savePath, data, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+//			
+//		} catch (IOException e) {
+//			System.err.println(e);
+//		}
+//		
+//		
+//		//sourceroot & inpath directories
+//		String sourceroots = savePath.getParent().toAbsolutePath().toString();
+//		String inpath;
+//		
+//		
+//		if(isJar){
+//			
+//			inpath = Paths.get(mInPath).toString();
+//			String outjar = saveJar();
+//			System.out.println(outjar);
+//			if(outjar == null) 
+//				return;
+//			AjcRunner.compileJar(inpath, sourceroots, outjar);
+//			
+//			
+//		} else {
+//			
+//			inpath = Paths.get(mInPath).getParent().toAbsolutePath().toString();
+//			AjcRunner.compileClass(inpath, sourceroots);
+//			
+//		}
 
 	}
 	
@@ -781,7 +813,7 @@ public class MainWindow implements DialogListener {
 		chooser.setAcceptAllFileFilterUsed(false);
 
 
-		int returnVal = chooser.showSaveDialog(frame);
+		int returnVal = chooser.showSaveDialog(mFrame);
 		
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 						
@@ -791,6 +823,5 @@ public class MainWindow implements DialogListener {
 		}
 		
 		return null;
-		
-	}
+	}	
 }

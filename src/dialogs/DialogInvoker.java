@@ -380,27 +380,7 @@ public class DialogInvoker {
 		buttonPane.add(btnSave);
 		buttonPane.add(btnCancel);
 
-		btnSave.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-
-				mListener.saveAdvice(textArea.getText());
-				mDialog.dispose();
-
-			}
-		});
-
-		btnCancel.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				mDialog.dispose();				
-			}
-		});
-
-
-
+		
 		//Pointcuts panel
 		pointcutPanel.setLayout(new GridBagLayout());
 		pointcutPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -452,6 +432,43 @@ public class DialogInvoker {
 				pointcutPanel.repaint();
 			}
 		});
+		
+		
+		
+		//Button Action Listeners
+		btnSave.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				String retType = "";
+				if(isAdviceAround) {
+					retType = mAdviceRetType.getText();
+				}
+				
+				String selectedAdvice = ADVICE_OPTIONS[adviceOptions.getSelectedIndex()];
+				String selectedPointcut = createdPointcuts.get(listPointcuts.getSelectedIndex());
+				String adviceBody = textArea.getText();
+				
+				String wholeAdvice = retType + " " + selectedAdvice + " : " + selectedPointcut + " { \n"
+						+ adviceBody + " \n"
+						+ "} \n";
+				
+				mListener.saveAdvice(wholeAdvice);
+				mDialog.dispose();
+
+			}
+		});
+
+		btnCancel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				mDialog.dispose();				
+			}
+		});
+		
+		
 
 
 		//add panels to dialog
