@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -223,10 +224,8 @@ public class MainWindow implements DialogListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//				new DialogCodeEditor(TestWindow.this).setVisible(true);
+				
 				new DialogInvoker(mFrame, MainWindow.this).adviceDialog(mPointcuts);
-				//TODO dialog should show list of created pointcuts
-				//TODO save advice
 
 			}
 		});
@@ -236,7 +235,6 @@ public class MainWindow implements DialogListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//TODO compile with aspects
 				compileWithAspects();
 			}
 		});
@@ -354,13 +352,10 @@ public class MainWindow implements DialogListener {
 				"Create Pointcut", JOptionPane.YES_NO_OPTION);
 
 		if(option == 0) {
+			
 			new DialogInvoker(mFrame, MainWindow.this).pointcutDialog(type, selected);
 			
 			//TODO add option to add to an existing pointcut!
-			
-			
-			
-			//TODO save pointcut
 		}
 
 
@@ -709,26 +704,28 @@ public class MainWindow implements DialogListener {
 		//		        System.out.printf("TestAspect.advice() called on '%s'%n", thisJoinPoint);
 		//		    }
 		//		}
-
-		System.out.println("CompileWithAspects\n\n");
-
-		StringBuilder builder = new StringBuilder();
-		builder.append("public aspect TestAspect {\n\n");
-		builder.append("\tpointcut test() : execution(* TestTarget.test*(..));\n\n");
-		builder.append("\tbefore() : test() {\n");
-		builder.append("\t\tSystem.out.printf(\"TestAspect.advice() called on '%s'%n\", thisJoinPoint);\n");
-		builder.append("\t}\n");
-		builder.append("}");
-
-		String s = builder.toString();
-
-		System.out.println(s);
+//
+//		System.out.println("CompileWithAspects\n\n");
+//
+//		StringBuilder builder = new StringBuilder();
+//		builder.append("public aspect TestAspect {\n\n");
+//		builder.append("\tpointcut test() : execution(* TestTarget.test*(..));\n\n");
+//		builder.append("\tbefore() : test() {\n");
+//		builder.append("\t\tSystem.out.printf(\"TestAspect.advice() called on '%s'%n\", thisJoinPoint);\n");
+//		builder.append("\t}\n");
+//		builder.append("}");
+//
+//		String s = builder.toString();
+//
+//		System.out.println(s);
 		
 		//TODO create the aspect
 		//TODO create a save dialog for the aspect
 		//TODO make sure it is saved in a directory with write permissions (let user handle it)
 		
-		
+		/**********************************************/
+		/***** get aspect name - provided by user *****/
+		/**********************************************/
 		String aspectName = JOptionPane.showInputDialog(mFrame,
 				"Save Aspect as",
 				"Aspect Name?", 
@@ -737,6 +734,9 @@ public class MainWindow implements DialogListener {
 		if(aspectName == null || aspectName.isEmpty())
 			return;
 		
+		/******************************/
+		/***** create aspect file *****/
+		/******************************/
 		String aspectPath = "aspects/" + aspectName + ".aj";
 		
 		System.out.println("Aspect Name = " + aspectName);
@@ -757,7 +757,35 @@ public class MainWindow implements DialogListener {
 		
 		System.out.println(aspectBuilder.toString());
 		
-		//TODO save aspect to file
+		/*********************************/
+		/***** Saving aspect to file *****/
+		/*********************************/
+		File f = new File(aspectPath);
+		f.getParentFile().mkdir();
+		
+		Path savePath = Paths.get(aspectPath).toAbsolutePath();
+		byte[] data = aspectBuilder.toString().getBytes();
+		
+		try {
+			
+			Files.write(savePath,
+					data, 
+					StandardOpenOption.CREATE, 
+					StandardOpenOption.WRITE, 
+					StandardOpenOption.TRUNCATE_EXISTING);
+			
+		} catch (IOException e) {
+			System.err.println(e);
+		}
+		
+		/*****************************************/
+		/***** compile jar/class with aspect *****/
+		/*****************************************/
+		
+		//TODO compile file
+		
+		
+		
 		/*************************************/
 
 //		java.nio.file.Path savePath = Paths.get("D:/TestAspect.aj"); //TODO change to real path - form save dialog

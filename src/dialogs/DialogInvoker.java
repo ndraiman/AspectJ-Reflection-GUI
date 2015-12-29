@@ -443,14 +443,14 @@ public class DialogInvoker {
 				
 				String retType = "";
 				if(isAdviceAround) {
-					retType = mAdviceRetType.getText();
+					retType = mAdviceRetType.getText() + " ";
 				}
 				
 				String selectedAdvice = ADVICE_OPTIONS[adviceOptions.getSelectedIndex()];
 				String selectedPointcut = createdPointcuts.get(listPointcuts.getSelectedIndex());
 				String adviceBody = textArea.getText();
 				
-				String wholeAdvice = retType + " " + selectedAdvice + " : " + selectedPointcut + " { \n"
+				String wholeAdvice = retType + selectedAdvice + " : " + selectedPointcut + " { \n"
 						+ adviceBody + " \n"
 						+ "} \n";
 				
@@ -578,7 +578,8 @@ public class DialogInvoker {
 		
 		if(node instanceof FieldNode) {
 			
-			s = ((FieldNode) node).getName();
+			FieldNode field = (FieldNode) node;
+			s = field.getFieldObject().getDeclaringClass().getName() + "." + field.getName();
 						
 		} else if (node instanceof MethodNode) {
 			
@@ -610,11 +611,11 @@ public class DialogInvoker {
 			s += ")";
 			
 		}
-		
+		System.out.println(s);
 		return s;
 		
 		//TODO change string to be Class.Method or Class.Field etc
-		
+		//TODO DONE! - check if ok
 		
 		
 //		return node.toString();
