@@ -450,7 +450,7 @@ public class DialogInvoker {
 				String selectedPointcut = createdPointcuts.get(listPointcuts.getSelectedIndex());
 				String adviceBody = textArea.getText();
 				
-				String wholeAdvice = retType + selectedAdvice + " : " + selectedPointcut + " { \n"
+				String wholeAdvice = retType + selectedAdvice + "() : " + selectedPointcut + "() { \n"
 						+ adviceBody + " \n"
 						+ "} \n";
 				

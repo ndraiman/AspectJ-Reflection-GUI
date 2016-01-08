@@ -9,10 +9,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -28,6 +30,7 @@ import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -695,33 +698,6 @@ public class MainWindow implements DialogListener {
 
 	private void compileWithAspects() {
 
-		/***** DEBUG *****/
-		//		public aspect TestAspect {
-		//			
-		//			pointcut test() : execution(* TestTarget.test*(..));
-		//
-		//		    before() : test() {
-		//		        System.out.printf("TestAspect.advice() called on '%s'%n", thisJoinPoint);
-		//		    }
-		//		}
-//
-//		System.out.println("CompileWithAspects\n\n");
-//
-//		StringBuilder builder = new StringBuilder();
-//		builder.append("public aspect TestAspect {\n\n");
-//		builder.append("\tpointcut test() : execution(* TestTarget.test*(..));\n\n");
-//		builder.append("\tbefore() : test() {\n");
-//		builder.append("\t\tSystem.out.printf(\"TestAspect.advice() called on '%s'%n\", thisJoinPoint);\n");
-//		builder.append("\t}\n");
-//		builder.append("}");
-//
-//		String s = builder.toString();
-//
-//		System.out.println(s);
-		
-		//TODO create the aspect
-		//TODO create a save dialog for the aspect
-		//TODO make sure it is saved in a directory with write permissions (let user handle it)
 		
 		/**********************************************/
 		/***** get aspect name - provided by user *****/
@@ -761,9 +737,24 @@ public class MainWindow implements DialogListener {
 		/***** Saving aspect to file *****/
 		/*********************************/
 		File f = new File(aspectPath);
-		f.getParentFile().mkdir();
+		boolean dirCreated = f.getParentFile().mkdir(); //TODO remove boolean and print
+		System.out.println("dircreated = " + dirCreated);
+		
+		
 		
 		Path savePath = Paths.get(aspectPath).toAbsolutePath();
+		
+		System.out.println("dir Path = " + savePath.getParent().toAbsolutePath().toString());
+		//Clean directory
+		File dir = new File(savePath.getParent().toAbsolutePath().toString());
+		if(dir != null) {
+			File[] files = dir.listFiles();
+			for (File file : files) {
+				if(!file.delete())
+					System.out.println("failed to delete file");
+			}
+		}
+		
 		byte[] data = aspectBuilder.toString().getBytes();
 		
 		try {
@@ -774,6 +765,15 @@ public class MainWindow implements DialogListener {
 					StandardOpenOption.WRITE, 
 					StandardOpenOption.TRUNCATE_EXISTING);
 			
+			if(!isJar) {
+				//FIXME maybe disable this incase of JAR
+				//Copy class\Jar file to program dir
+				Path src_path = Paths.get(mInPath);
+				Path dest_path = Paths.get(savePath.getParent().toString() + mInPath.substring(mInPath.lastIndexOf("\\"), mInPath.length()));
+	//			System.out.println("mInpath = " + mInPath + ", p1 = " + src_path + ", p2 = " + dest_path); //TODO delete
+				Files.copy(src_path, dest_path, StandardCopyOption.REPLACE_EXISTING);
+			}
+			
 		} catch (IOException e) {
 			System.err.println(e);
 		}
@@ -783,45 +783,28 @@ public class MainWindow implements DialogListener {
 		/*****************************************/
 		
 		//TODO compile file
-		
-		
-		
-		/*************************************/
-
-//		java.nio.file.Path savePath = Paths.get("D:/TestAspect.aj"); //TODO change to real path - form save dialog
-//		byte[] data = s.getBytes();
-//		
-//
-//		try {
-//			
-//			Files.write(savePath, data, StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
-//			
-//		} catch (IOException e) {
-//			System.err.println(e);
-//		}
-//		
-//		
-//		//sourceroot & inpath directories
-//		String sourceroots = savePath.getParent().toAbsolutePath().toString();
+		String sourceroots = Paths.get(aspectPath).getParent().toAbsolutePath().toString();
 //		String inpath;
-//		
-//		
-//		if(isJar){
-//			
-//			inpath = Paths.get(mInPath).toString();
-//			String outjar = saveJar();
-//			System.out.println(outjar);
-//			if(outjar == null) 
-//				return;
-//			AjcRunner.compileJar(inpath, sourceroots, outjar);
-//			
-//			
-//		} else {
-//			
+		String inpath = sourceroots;
+		
+		
+		if(isJar){
+			
+			inpath = Paths.get(mInPath).toString();
+			String outjar = saveJar();
+			System.out.println(outjar);
+			if(outjar == null) 
+				return;
+			AjcRunner.compileJar(inpath, sourceroots, outjar);
+			
+			
+		} else {
+			
 //			inpath = Paths.get(mInPath).getParent().toAbsolutePath().toString();
-//			AjcRunner.compileClass(inpath, sourceroots);
-//			
-//		}
+			AjcRunner.compileClass(inpath, sourceroots);
+			
+		}
+		
 
 	}
 	
