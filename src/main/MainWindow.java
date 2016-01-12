@@ -75,6 +75,7 @@ public class MainWindow implements DialogListener {
 
 	private List<PointcutContainer> mPointcuts;
 	private List<AdviceContainer> mAdvices;
+	private List<String> mInterTypeDeclarations;
 	private String mInPath;
 
 	private JFrame mFrame;
@@ -90,6 +91,7 @@ public class MainWindow implements DialogListener {
 	private final String LBL_LOAD_FILE = "Load Class/Jar";
 	private final String LBL_POINTCUT = "Add Pointcut";
 	private final String LBL_ADVICE = "Add Advice";
+	private final String LBL_INTER_TYPE = "Add Inter-Type";
 	private final String LBL_COMPILE = "Compile";
 	
 	
@@ -127,6 +129,7 @@ public class MainWindow implements DialogListener {
 		
 		mPointcuts = new ArrayList<>();
 		mAdvices = new ArrayList<>();
+		mInterTypeDeclarations = new ArrayList<String>();
 
 		initialize();
 	}
@@ -227,9 +230,16 @@ public class MainWindow implements DialogListener {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				
 				new DialogInvoker(mFrame, MainWindow.this).adviceDialog(mPointcuts);
-
+			}
+		});
+		
+		JButton btnInterType = new JButton(LBL_INTER_TYPE);
+		btnInterType.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new DialogInvoker(mFrame, MainWindow.this).interTypeDialog();			
 			}
 		});
 
@@ -247,6 +257,7 @@ public class MainWindow implements DialogListener {
 		buttonPanel.add(btnLoadFile);
 		buttonPanel.add(btnPointcut);
 		buttonPanel.add(btnAdvice);
+		buttonPanel.add(btnInterType);
 		buttonPanel.add(btnCompile);
 		
 		JPanel contentPanel = new JPanel();
@@ -263,8 +274,10 @@ public class MainWindow implements DialogListener {
 //
 //		mFrame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
 		mFrame.getContentPane().add(contentPanel, BorderLayout.CENTER);
+		
+		mFrame.pack();
 
-		//DEBUG LoadClassDetails
+		//FIXME DEBUG LoadClassDetails
 		loadClassDetails(root, Car.class, null);
 		((DefaultTreeModel) mTree.getModel()).reload();
 	}
@@ -691,6 +704,14 @@ public class MainWindow implements DialogListener {
 		System.out.println("Pointcut Saved!");
 		mPointcuts.add(p);
 	}
+	
+	
+
+	@Override
+	public void saveInterType(String code) {
+		System.out.println("InterType Saved! \n" + code);
+		mInterTypeDeclarations.add(code);
+	}
 
 	/************************************************************************************************************/
 	/***************************************** Compile Aspects **************************************************/
@@ -722,6 +743,10 @@ public class MainWindow implements DialogListener {
 		StringBuilder aspectBuilder = new StringBuilder();
 		aspectBuilder.append("public aspect " + aspectName + " { \n");
 		
+		for(String interType : mInterTypeDeclarations) {
+			aspectBuilder.append(interType + "\n");
+		}
+		aspectBuilder.append("\n");
 		for(PointcutContainer p : mPointcuts) {
 			aspectBuilder.append(p + "\n");
 		}

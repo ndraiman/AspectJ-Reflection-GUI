@@ -7,4 +7,6 @@ public interface DialogListener {
 	public void saveAdvice(String input);
 	
 	public void savePointcut(PointcutContainer p);
+	
+	public void saveInterType(String code);
 }
