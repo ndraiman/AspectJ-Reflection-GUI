@@ -142,7 +142,7 @@ public class DialogInvoker {
 
 	public void pointcutDialog(int type, Object nodeContainer) {
 
-		//TODO add relation option between pointcut options (and\or)
+		//TODO add relation option between pointcut options (and\or) 
 		mDialog = new JDialog(mParentFrame);
 		mDialog.setLocationRelativeTo(mParentFrame);
 
@@ -381,7 +381,7 @@ public class DialogInvoker {
 		JPanel buttonPane = new JPanel();
 		JPanel pointcutPanel = new JPanel();
 
-		mDialog.setBounds(100, 100, 450, 400);
+		mDialog.setBounds(100, 100, 650, 500);
 		mDialog.getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPanel.setLayout(new BorderLayout(0, 0));
@@ -412,6 +412,7 @@ public class DialogInvoker {
 		pointcutPanel.setLayout(new GridBagLayout());
 		pointcutPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
+		JLabel lblPointcuts = new JLabel("Pointcut: ");
 		Vector<String> createdPointcuts = new Vector<>();
 		for(int i = 0; i < pointcuts.size(); i++) {
 			createdPointcuts.add(pointcuts.get(i).getName());
@@ -422,10 +423,25 @@ public class DialogInvoker {
 		listPointcuts.setBorder(new EmptyBorder(10, 10, 10, 10));
 		adviceOptions.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
+		JLabel lblArgs = new JLabel("Advice args: ");
+		JTextField txtArgs = new JTextField(POINTCUT_TXTFLD_SIZE);
+		
+		JCheckBox chkRet = new JCheckBox("returning", false);
+		
+		
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 1;
+		c.gridx = 3;
 		pointcutPanel.add(adviceOptions, c);
+		c.gridx = 4;
+		pointcutPanel.add(chkRet, c); 
+		c.gridx = 1;
+		c.gridy = 1;
+		pointcutPanel.add(lblArgs, c);
 		c.gridx = 2;
+		pointcutPanel.add(txtArgs, c);
+		c.gridx = 3;
+		pointcutPanel.add(lblPointcuts, c);
+		c.gridx = 4;
 		c.ipadx = 100;
 		pointcutPanel.add(listPointcuts, c);
 
@@ -444,7 +460,8 @@ public class DialogInvoker {
 					
 					isAdviceAround = true;
 					mAdviceRetType = new JTextField("retType", ADVICE_TXTFLD_SIZE);
-					c.gridx = 0;
+					c.gridx = 2;
+					c.gridy = 0;
 					pointcutPanel.add(mAdviceRetType, c);
 					
 				} else if(isAdviceAround) {
@@ -474,10 +491,14 @@ public class DialogInvoker {
 				}
 				
 				String selectedAdvice = ADVICE_OPTIONS[adviceOptions.getSelectedIndex()];
+				String adviceArgs = txtArgs.getText();
+				String returning = chkRet.isSelected() ? "returning" : "";
 				String selectedPointcut = createdPointcuts.get(listPointcuts.getSelectedIndex());
 				String adviceBody = textArea.getText();
 				
-				String wholeAdvice = retType + selectedAdvice + "() : " + selectedPointcut + "() { \n"
+				String wholeAdvice = retType + selectedAdvice 
+						+ "(" + adviceArgs + ") " + returning + ": " 
+						+ selectedPointcut + "() { \n"
 						+ adviceBody + " \n"
 						+ "} \n";
 				
