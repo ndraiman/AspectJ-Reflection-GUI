@@ -8,11 +8,15 @@ public class PointcutContainer {
 	
 	private String mName;
 	private List<JoinpointContainer> mJoinpoints;
+	private String mArgs;
+	private String mRelation;
 	
 	
-	public PointcutContainer(String name) {
+	public PointcutContainer(String name, String args, String relation) {
 		System.out.println("creating pointcut - " + name);
 		mName = name;
+		mArgs = args;
+		mRelation = relation.equals("OR") ? "||" : "&&";
 		mJoinpoints = new ArrayList<>();
 	}
 	
@@ -22,10 +26,10 @@ public class PointcutContainer {
 
 	@Override
 	public String toString() {
-		String s = "pointcut " + mName + "() : " + mJoinpoints.get(0);
+		String s = "pointcut " + mName + "(" + mArgs + ") : " + mJoinpoints.get(0);
 		
 		for(int i = 1; i < mJoinpoints.size(); i++) {
-			s += " || " + mJoinpoints.get(i);
+			s += " " + mRelation + " " + mJoinpoints.get(i);
 		}
 		
 		s += ";";
@@ -43,7 +47,7 @@ public class PointcutContainer {
 	}
 
 
-	public List<JoinpointContainer> getmJoinpoints() {
+	public List<JoinpointContainer> getJoinpoints() {
 		return mJoinpoints;
 	}
 

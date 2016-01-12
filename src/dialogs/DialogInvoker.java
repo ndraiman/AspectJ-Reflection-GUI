@@ -5,7 +5,6 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -15,6 +14,7 @@ import java.util.Vector;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -71,6 +71,7 @@ public class DialogInvoker {
 	private List<JTextField> listJoinpointText;
 	private List<JComboBox<String>> listJoinpoints;
 	private List<JComboBox<String>> listJoinpointType;
+	private List<JCheckBox> listJoinpointNot;
 
 	/*********************/
 	/***** Variables *****/
@@ -79,8 +80,10 @@ public class DialogInvoker {
 	private JFrame mParentFrame;
 	private JDialog mDialog;
 	private JTextField mPointcutNameField;
+	private JTextField mPointcutArgs;
+	private JComboBox<String> mJoinpointRelations;
 	
-	private final int JOINPOINT_COLUMNS = 4;
+	private final int JOINPOINT_COLUMNS = 5;
 	private final int JOINPOINT_TXTFLD_SIZE = 25;
 	private final int POINTCUT_TXTFLD_SIZE = 15;
 	private final int ADVICE_TXTFLD_SIZE = 10;
@@ -128,6 +131,7 @@ public class DialogInvoker {
 		listJoinpointText = new ArrayList<>();
 		listJoinpoints = new ArrayList<>();
 		listJoinpointType = new ArrayList<>();
+		listJoinpointNot = new ArrayList<>();
 
 	}
 
@@ -138,7 +142,7 @@ public class DialogInvoker {
 
 	public void pointcutDialog(int type, Object nodeContainer) {
 
-		//TODO add relation option between pointcut options (not\and\or)
+		//TODO add relation option between pointcut options (and\or)
 		mDialog = new JDialog(mParentFrame);
 		mDialog.setLocationRelativeTo(mParentFrame);
 
@@ -152,11 +156,23 @@ public class DialogInvoker {
 		namePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 		namePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-		JLabel nameLabel = new JLabel("Name: ");
-		nameLabel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JLabel lblName = new JLabel("Name: ");
+		lblName.setBorder(new EmptyBorder(10, 10, 10, 10));
 		mPointcutNameField = new JTextField(PH_POINTCUT_NAME, POINTCUT_TXTFLD_SIZE);
-		namePanel.add(nameLabel);
+		
+		JLabel lblArgs = new JLabel("Args: ");
+		mPointcutArgs = new JTextField(POINTCUT_TXTFLD_SIZE);
+		
+		JLabel lblRelation = new JLabel("Joinpoint Relation: ");
+		mJoinpointRelations = new JComboBox<>(new String[] {"AND", "OR"});
+		
+		
+		namePanel.add(lblName);
 		namePanel.add(mPointcutNameField);
+		namePanel.add(lblArgs);
+		namePanel.add(mPointcutArgs);
+		namePanel.add(lblRelation);
+		namePanel.add(mJoinpointRelations);
 
 
 
@@ -179,16 +195,20 @@ public class DialogInvoker {
 		
 		//Setup components in layout
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = joinpoint_rows;
-		joinpointPanel.add(typeList, c);
+		JCheckBox chkNot = new JCheckBox("!", false);
 		c.gridx = 1;
 		c.gridy = joinpoint_rows;
+		joinpointPanel.add(chkNot, c);
+		c.gridx = 2;
+		c.gridy = joinpoint_rows;
+		joinpointPanel.add(typeList, c);
+		c.gridx = 3;
+		c.gridy = joinpoint_rows;
 		joinpointPanel.add(joinpoints, c);
-		c.gridx = 5;
+		c.gridx = 7;
 		c.gridy = joinpoint_rows;
 		joinpointPanel.add(new JPanel(), c); //add empty panel for 3rd col
-		c.gridx = 2;
+		c.gridx = 4;
 		c.gridy = joinpoint_rows;
 		c.weightx = 1.0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -200,6 +220,7 @@ public class DialogInvoker {
 		listJoinpointText.add(joinpointTextField);
 		listJoinpoints.add(joinpoints);
 		listJoinpointType.add(typeList);
+		listJoinpointNot.add(chkNot);
 
 
 		
@@ -291,6 +312,7 @@ public class DialogInvoker {
 				panel.remove(index - 1);
 				panel.remove(index - 2);
 				panel.remove(index - 3);
+				panel.remove(index - 4);
 				joinpoint_rows--;
 
 				
@@ -308,16 +330,20 @@ public class DialogInvoker {
 		//Setup components in layout
 		joinpoint_rows++;
 		GridBagConstraints c = new GridBagConstraints();
-		c.gridx = 0;
-		c.gridy = joinpoint_rows;
-		panel.add(typeList, c);
+		JCheckBox chkNot = new JCheckBox("!", false);
 		c.gridx = 1;
 		c.gridy = joinpoint_rows;
+		panel.add(chkNot, c);
+		c.gridx = 2;
+		c.gridy = joinpoint_rows;
+		panel.add(typeList, c);
+		c.gridx = 3;
+		c.gridy = joinpoint_rows;
 		panel.add(joinpoints, c);
-		c.gridx = 5;
+		c.gridx = 7;
 		c.gridy = joinpoint_rows;
 		panel.add(closePanel, c);
-		c.gridx = 2;
+		c.gridx = 4;
 		c.gridy = joinpoint_rows;
 		c.weightx = 1.0;
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -330,6 +356,7 @@ public class DialogInvoker {
 		listJoinpointText.add(joinpointTextField);
 		listJoinpoints.add(joinpoints);
 		listJoinpointType.add(typeList);
+		listJoinpointNot.add(chkNot);
 
 		System.out.println(listJoinpointButtonList.size());
 
@@ -492,6 +519,7 @@ public class DialogInvoker {
 		listJoinpointText = new ArrayList<>();
 		listJoinpoints = new ArrayList<>();
 		listJoinpointType = new ArrayList<>();
+		listJoinpointNot = new ArrayList<>();
 		
 	}
 
@@ -636,15 +664,21 @@ public class DialogInvoker {
 
 			case CMD_SAVE:
 
-				PointcutContainer pointcut = new PointcutContainer(mPointcutNameField.getText());
+				PointcutContainer pointcut = new PointcutContainer(
+						mPointcutNameField.getText(),
+						mPointcutArgs.getText(),
+						mJoinpointRelations.getSelectedItem().toString());
 
 				for(int i = 0; i < listJoinpointText.size(); i++) {
 					JoinpointContainer j = new JoinpointContainer(
 							listJoinpoints.get(i).getSelectedItem().toString(),
-							listJoinpointText.get(i).getText());
+							listJoinpointText.get(i).getText(),
+							listJoinpointNot.get(i).isSelected());
 
 					pointcut.addJoinpoint(j);
 				}
+				
+				System.out.println(pointcut);
 
 				mListener.savePointcut(pointcut);
 				mDialog.dispose();
