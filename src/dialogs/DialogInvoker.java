@@ -35,9 +35,6 @@ import extras.PointcutContainer;
 
 public class DialogInvoker {
 
-	//	private final String[] POINTCUT_OPTIONS = {"call", "execution", "get", "set", "initialization",
-	//			"preinitialization", "staticinitialization", "handler", "adviceexecution", "within", "withincode",
-	//			"cflow", "cflowbelow", "this", "target", "args", "PointcutId", "if", "!", "&&", "||", "( )"};
 
 	/**********************************/
 	/***** ComboBox String Arrays *****/
@@ -142,7 +139,7 @@ public class DialogInvoker {
 
 	public void pointcutDialog(int type, Object nodeContainer) {
 
-		//TODO add relation option between pointcut options (and\or) 
+		//TODO add relation option between pointcut options (and\or) (ATM only global relation is available)
 		mDialog = new JDialog(mParentFrame);
 		mDialog.setLocationRelativeTo(mParentFrame);
 
@@ -151,10 +148,12 @@ public class DialogInvoker {
 
 		mDialog.setTitle("PointCut");
 
-		//pointcut name panel
-		JPanel namePanel = new JPanel();
-		namePanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		namePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		/**************************/
+		/***** Pointcut Panel *****/
+		/**************************/
+		JPanel pointcutPanel = new JPanel();
+		pointcutPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		pointcutPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		JLabel lblName = new JLabel("Name: ");
 		lblName.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -167,16 +166,18 @@ public class DialogInvoker {
 		mJoinpointRelations = new JComboBox<>(new String[] {"AND", "OR"});
 
 
-		namePanel.add(lblName);
-		namePanel.add(mPointcutNameField);
-		namePanel.add(lblArgs);
-		namePanel.add(mPointcutArgs);
-		namePanel.add(lblRelation);
-		namePanel.add(mJoinpointRelations);
+		pointcutPanel.add(lblName);
+		pointcutPanel.add(mPointcutNameField);
+		pointcutPanel.add(lblArgs);
+		pointcutPanel.add(mPointcutArgs);
+		pointcutPanel.add(lblRelation);
+		pointcutPanel.add(mJoinpointRelations);
 
 
 
-		//joinpoint panel
+		/***************************/
+		/***** Joinpoint Panel *****/
+		/***************************/
 		JPanel joinpointPanel = new JPanel();
 		joinpointPanel.setLayout(new GridBagLayout());
 		joinpointPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -188,12 +189,12 @@ public class DialogInvoker {
 		JComboBox<String> joinpoints = getComboBox(type);
 		joinpoints.setSelectedIndex(0);
 		joinpoints.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JTextField joinpointTextField = new JTextField(nodeContainer == null ? getPHString(type) : getActualString(nodeContainer),
+		JTextField joinpointTextField = new JTextField(nodeContainer == null ? getPHString(type) : getJoinpointString(nodeContainer),
 				JOINPOINT_TXTFLD_SIZE);
 
 
 
-		//Setup components in layout
+		//Setup components in GridBagLayout
 		GridBagConstraints c = new GridBagConstraints();
 		JCheckBox chkNot = new JCheckBox("!", false);
 		c.gridx = 1;
@@ -207,7 +208,7 @@ public class DialogInvoker {
 		joinpointPanel.add(joinpoints, c);
 		c.gridx = 7;
 		c.gridy = joinpoint_rows;
-		joinpointPanel.add(new JPanel(), c); //add empty panel for 3rd col
+		joinpointPanel.add(new JPanel(), c); //add empty panel for 3rd col (since no close button)
 		c.gridx = 4;
 		c.gridy = joinpoint_rows;
 		c.weightx = 1.0;
@@ -224,7 +225,9 @@ public class DialogInvoker {
 
 
 
-		//button panel
+		/************************/
+		/***** Button Panel *****/
+		/************************/
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 		JButton btnSave = new JButton(LBL_SAVE);
@@ -237,7 +240,9 @@ public class DialogInvoker {
 
 
 
-		//Action Listener
+		/***************************/
+		/***** Action Listener *****/
+		/***************************/
 		btnSave.setActionCommand(CMD_SAVE);
 		btnCancel.setActionCommand(CMD_CANCEL);
 		typeList.setActionCommand(JOINPOINT_TYPE);
@@ -258,8 +263,10 @@ public class DialogInvoker {
 
 
 
-		//add panels to dialog
-		contentPane.add(namePanel, BorderLayout.NORTH);
+		/************************************/
+		/***** Add all to Content Panel *****/
+		/************************************/
+		contentPane.add(pointcutPanel, BorderLayout.NORTH);
 		contentPane.add(joinpointPanel, BorderLayout.CENTER);
 		contentPane.add(buttonPanel, BorderLayout.SOUTH);
 
@@ -268,13 +275,13 @@ public class DialogInvoker {
 		mDialog.setVisible(true);
 	}
 
-	/***********************************************/
-	/*************** Add Joinpoint *****************/
-	/***********************************************/
+	/******************************************************/
+	/*************** Add Joinpoint Method *****************/
+	/******************************************************/
 
 	private void addNewJoinpoint(JPanel panel, int type, ActionListener listener) {
 
-		System.out.println("New Field...");
+//		System.out.println("New Field..."); //DEBUG
 
 		JComboBox<String> joinpoints = getComboBox(type);
 		joinpoints.setSelectedIndex(0);
@@ -291,7 +298,9 @@ public class DialogInvoker {
 		closePanel.add(btnClose);
 
 
-
+		/*********************************/
+		/***** Close Button Listener *****/
+		/*********************************/
 		btnClose.addActionListener(new ActionListener() {
 
 			@Override
@@ -301,8 +310,8 @@ public class DialogInvoker {
 
 				int btnIndex = listJoinpointButtonList.indexOf(thisButton);
 				int index = ((btnIndex + 1) * JOINPOINT_COLUMNS) + (JOINPOINT_COLUMNS - 1);
-				System.out.println("Panel index = " + index);
-				System.out.println("btnIndex = " + btnIndex);
+//				System.out.println("Panel index = " + index); //DEBUG
+//				System.out.println("btnIndex = " + btnIndex); //DEBUG
 
 				listJoinpointButtonList.remove(btnIndex);
 				listJoinpointText.remove(btnIndex + 1);
@@ -327,7 +336,7 @@ public class DialogInvoker {
 
 
 
-		//Setup components in layout
+		//Setup components in GridBagLayout
 		joinpoint_rows++;
 		GridBagConstraints c = new GridBagConstraints();
 		JCheckBox chkNot = new JCheckBox("!", false);
@@ -358,7 +367,7 @@ public class DialogInvoker {
 		listJoinpointType.add(typeList);
 		listJoinpointNot.add(chkNot);
 
-		System.out.println(listJoinpointButtonList.size());
+//		System.out.println(listJoinpointButtonList.size()); //DEBUG
 
 		panel.validate();
 		panel.repaint();
@@ -374,6 +383,7 @@ public class DialogInvoker {
 	public void adviceDialog(List<PointcutContainer> pointcuts) {
 
 		mDialog = new JDialog(mParentFrame);
+		mDialog.setLocationRelativeTo(mParentFrame);
 		mDialog.setTitle("Advice");
 
 		final JPanel contentPanel = new JPanel();
@@ -388,7 +398,9 @@ public class DialogInvoker {
 
 
 
-		//TextArea Panel
+		/**************************/
+		/***** TextArea Panel *****/
+		/**************************/
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 		textArea.setCodeFoldingEnabled(true);
 
@@ -397,7 +409,9 @@ public class DialogInvoker {
 
 
 
-		//Buttons Panel
+		/************************/
+		/***** Button Panel *****/
+		/************************/
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));		
 
 		JButton btnSave = new JButton("Save");
@@ -408,7 +422,9 @@ public class DialogInvoker {
 		buttonPane.add(btnCancel);
 
 
-		//Pointcuts panel
+		/**************************/
+		/***** Pointcut Panel *****/
+		/**************************/
 		pointcutPanel.setLayout(new GridBagLayout());
 		pointcutPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -428,7 +444,7 @@ public class DialogInvoker {
 
 		JCheckBox chkRet = new JCheckBox("returning", false);
 
-
+		//Setup components in GridBagLayout
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 3;
 		pointcutPanel.add(adviceOptions, c);
@@ -445,7 +461,11 @@ public class DialogInvoker {
 		c.ipadx = 100;
 		pointcutPanel.add(listPointcuts, c);
 
-
+		
+		/****************************/
+		/***** Action Listeners *****/
+		/****************************/
+		//ComboBox Listener
 		adviceOptions.addActionListener(new ActionListener() {
 
 			@Override
@@ -517,9 +537,9 @@ public class DialogInvoker {
 		});
 
 
-
-
-		//add panels to dialog
+		/************************************/
+		/***** Add all to Content Panel *****/
+		/************************************/
 		Container contentPane = mDialog.getContentPane();
 		contentPane.add(pointcutPanel, BorderLayout.NORTH);	
 		contentPane.add(contentPanel, BorderLayout.CENTER);
@@ -527,13 +547,14 @@ public class DialogInvoker {
 		mDialog.setVisible(true);
 	}
 
-	/************************************************************/
-	/*************** Add Inter-Type Declaration *****************/
-	/************************************************************/
-	public void interTypeDialog() {
+	/*******************************************************************************************/
+	/****************************** Manual Input  Dialog ***************************************/
+	/*******************************************************************************************/
+	public void manualInputDialog() {
 
 		mDialog = new JDialog(mParentFrame);
-		mDialog.setTitle("Inter-Type Declaration");
+		mDialog.setLocationRelativeTo(mParentFrame);
+		mDialog.setTitle("Manual Input");
 
 		mDialog.setBounds(100, 100, 650, 500);
 		mDialog.getContentPane().setLayout(new BorderLayout());
@@ -546,7 +567,9 @@ public class DialogInvoker {
 		
 		
 		
-		//Buttons Panel
+		/************************/
+		/***** Button Panel *****/
+		/************************/
 		JPanel buttonPane = new JPanel();
 		buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));		
 
@@ -561,7 +584,7 @@ public class DialogInvoker {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				mListener.saveInterType(textArea.getText());
+				mListener.saveManualInput(textArea.getText());
 				mDialog.dispose();
 			}
 		});
@@ -576,7 +599,9 @@ public class DialogInvoker {
 
 		
 		
-		//TextArea Panel
+		/**************************/
+		/***** TextArea Panel *****/
+		/**************************/
 		textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 		textArea.setCodeFoldingEnabled(true);
 
@@ -584,9 +609,10 @@ public class DialogInvoker {
 		contentPanel.add(scrollPane, BorderLayout.CENTER);
 
 		
-		//add panels to dialog
+		/************************************/
+		/***** Add all to Content Panel *****/
+		/************************************/
 		Container contentPane = mDialog.getContentPane();
-		//contentPane.add(pointcutPanel, BorderLayout.NORTH);	
 		contentPane.add(contentPanel, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.SOUTH);
 		mDialog.setVisible(true);
@@ -685,8 +711,10 @@ public class DialogInvoker {
 
 	}
 
-
-	private String getActualString(Object node) {
+	/**************************************/
+	/***** TextField Joinpoint String *****/
+	/**************************************/
+	private String getJoinpointString(Object node) {
 
 		String s = "";
 
@@ -725,7 +753,7 @@ public class DialogInvoker {
 			s += ")";
 
 		}
-		System.out.println(s);
+//		System.out.println(s); //DEBUG
 		return s;
 
 		//TODO change string to be Class.Method or Class.Field etc
@@ -764,7 +792,7 @@ public class DialogInvoker {
 					pointcut.addJoinpoint(j);
 				}
 
-				System.out.println(pointcut);
+//				System.out.println(pointcut); //DEBUG
 
 				mListener.savePointcut(pointcut);
 				mDialog.dispose();

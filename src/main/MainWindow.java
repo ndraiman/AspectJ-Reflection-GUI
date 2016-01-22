@@ -9,21 +9,14 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -44,11 +37,9 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
-import javax.swing.text.DefaultCaret;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
@@ -56,13 +47,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 
-import console.CustomOutputStream;
-import console.MessageConsole;
-import testPackage.Car;
 import treeNodes.ClassNode;
 import treeNodes.ConstructorNode;
 import treeNodes.FieldNode;
 import treeNodes.MethodNode;
+import console.MessageConsole;
 import dialogs.DialogInvoker;
 import dialogs.DialogListener;
 import extras.AdviceContainer;
@@ -91,7 +80,7 @@ public class MainWindow implements DialogListener {
 	private final String LBL_LOAD_FILE = "Load Class/Jar";
 	private final String LBL_POINTCUT = "Add Pointcut";
 	private final String LBL_ADVICE = "Add Advice";
-	private final String LBL_INTER_TYPE = "Add Inter-Type";
+	private final String LBL_INTER_TYPE = "Manual Input";
 	private final String LBL_COMPILE = "Compile";
 	
 	
@@ -150,8 +139,8 @@ public class MainWindow implements DialogListener {
 		mFrame.setTitle("AspectJ GUI");
 
 		//Open Frame in middle of screen
-		//		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-		//		frame.setLocation(dim.width/2-frame.getSize().width/2, dim.height/2-frame.getSize().height/2);
+//		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+//		mFrame.setLocation(dim.width/2-mFrame.getSize().width/2, dim.height/2-mFrame.getSize().height/2);
 
 		
 		/*****************************/
@@ -163,7 +152,7 @@ public class MainWindow implements DialogListener {
 		instructions.setEditable(false);
 		instructionPanel.add(instructions);
 		
-		//Make text align center 
+		//Align text to center
 		StyledDocument doc = instructions.getStyledDocument();
 		SimpleAttributeSet center = new SimpleAttributeSet();
 		StyleConstants.setAlignment(center, StyleConstants.ALIGN_CENTER);
@@ -179,7 +168,6 @@ public class MainWindow implements DialogListener {
 		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Loaded Classes");
 		mTree = new JTree(root);
 		mTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		//		tree.addTreeSelectionListener(this); //Remove listener implementation if this is removed
 		
 		//Mouse Listener
 		MouseListener mouse = new MouseAdapter() {
@@ -239,7 +227,7 @@ public class MainWindow implements DialogListener {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new DialogInvoker(mFrame, MainWindow.this).interTypeDialog();			
+				new DialogInvoker(mFrame, MainWindow.this).manualInputDialog();			
 			}
 		});
 
@@ -260,26 +248,22 @@ public class MainWindow implements DialogListener {
 		buttonPanel.add(btnInterType);
 		buttonPanel.add(btnCompile);
 		
+		/************************************/
+		/***** Add all to Content Panel *****/
+		/************************************/
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new BorderLayout());
 		contentPanel.add(instructionPanel, BorderLayout.NORTH);
 		contentPanel.add(treePanel, BorderLayout.CENTER);
 		contentPanel.add(buttonPanel, BorderLayout.SOUTH);
 		
-//		frame.getContentPane().add(instructionPanel, BorderLayout.NORTH);
-//		frame.getContentPane().add(treePanel, BorderLayout.CENTER);
-//		frame.getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-		
-//		JPanel consolePanel = initConsolePanel();
-//
-//		mFrame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
+		//Console Panel
+		JPanel consolePanel = initConsolePanel();
+
+		mFrame.getContentPane().add(consolePanel, BorderLayout.SOUTH);
 		mFrame.getContentPane().add(contentPanel, BorderLayout.CENTER);
 		
 		mFrame.pack();
-
-		//FIXME DEBUG LoadClassDetails
-		loadClassDetails(root, Car.class, null);
-		((DefaultTreeModel) mTree.getModel()).reload();
 	}
 
 	
@@ -294,16 +278,7 @@ public class MainWindow implements DialogListener {
 		consolePanel.setLayout(new BorderLayout());
 		
 		JLabel lblConsole = new JLabel("Console Output: ");
-		
-//		JTextArea console = new JTextArea(10, 20);
-//		console.setEditable(false);
-//		console.setBackground(Color.WHITE);
-//		console.setLineWrap(true);
-		
-		//Set update policy to always scroll to bottom of console
-//		DefaultCaret caret = (DefaultCaret)console.getCaret();
-//		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
-		
+			
 		JTextPane console = new JTextPane();
 		console.setBackground(Color.WHITE);
 		
@@ -319,12 +294,7 @@ public class MainWindow implements DialogListener {
 		mc.redirectOut();
 		mc.redirectErr(Color.RED, null);
 		mc.setMessageLines(100);
-		
-//		PrintStream printStream = new PrintStream(new CustomOutputStream(console)); 
-//		System.setOut(printStream);
-//		System.setErr(printStream);
-		
-		
+				
 		return consolePanel;
 	}
 
@@ -334,14 +304,13 @@ public class MainWindow implements DialogListener {
 
 	void treeDoubleClick(int row) {
 
-		System.out.println("double clicked row " + row);
-		//		tree.getSelectionPath().getPathComponent(row);
+//		System.out.println("double clicked row " + row); //DEBUG
 		DefaultMutableTreeNode selected = (DefaultMutableTreeNode) mTree.getLastSelectedPathComponent();
 
 		if(!selected.isLeaf())
 			return;
 
-		System.out.println("Im a leaf!"); //DEBUG
+//		System.out.println("Im a leaf!"); //DEBUG
 		String name = "";
 		int type = -1;
 		
@@ -382,7 +351,7 @@ public class MainWindow implements DialogListener {
 	/***************************** Load Classes' Fields/Methods/Constructors ************************************/
 	/************************************************************************************************************/
 
-	//TODO at the moment it loads only un-inherited fields/methods etc
+	//FIXME at the moment it loads only un-inherited fields/methods etc
 	private void loadClassDetails(DefaultMutableTreeNode parent, Class<?> c, URLClassLoader cl) {
 		
 		
@@ -454,39 +423,39 @@ public class MainWindow implements DialogListener {
 
 
 		/**********************************************************************/
+		/*************************** NOT USED *********************************/
 		/**********************************************************************/
 
-
-		//Class Modifier
-		System.out.println("Class Modifier: " + Modifier.toString(c.getModifiers()));
-
-
-		//get Superclass - can be called recursively to get inheritance path
-		Class<?> ancestor = c.getSuperclass();
-		if(ancestor != null)
-			System.out.println("Super Class = " + ancestor.getName());
-
-
-		//Load Annotations
-		Annotation[] ann = c.getAnnotations();
-		for(Annotation a : ann) {
-			System.out.println("Annotation: " + a.toString());
-		}
-
-		//Load Implemented Interfaces
-		Type[] intfs = c.getGenericInterfaces();
-		for(Type intf : intfs) {
-			System.out.println("Implemented Interface: " + intf.toString());
-		}
-
-
-		//TODO Load TypeParameters 
-		TypeVariable<?>[] tv = c.getTypeParameters();
-		for(TypeVariable<?> t : tv) {
-			System.out.println("Type Parameter: " + t.getName());
-		}
-
-
+//		//Class Modifier
+//		System.out.println("Class Modifier: " + Modifier.toString(c.getModifiers()));
+//
+//
+//		//get Superclass - can be called recursively to get inheritance path
+//		Class<?> ancestor = c.getSuperclass();
+//		if(ancestor != null)
+//			System.out.println("Super Class = " + ancestor.getName());
+//
+//
+//		//Load Annotations
+//		Annotation[] ann = c.getAnnotations();
+//		for(Annotation a : ann) {
+//			System.out.println("Annotation: " + a.toString());
+//		}
+//
+//		//Load Implemented Interfaces
+//		Type[] intfs = c.getGenericInterfaces();
+//		for(Type intf : intfs) {
+//			System.out.println("Implemented Interface: " + intf.toString());
+//		}
+//
+//
+//		//TODO Load TypeParameters 
+//		TypeVariable<?>[] tv = c.getTypeParameters();
+//		for(TypeVariable<?> t : tv) {
+//			System.out.println("Type Parameter: " + t.getName());
+//		}
+//
+//
 
 		//load subclasses - calls this method recursively
 		//		DefaultMutableTreeNode subClassesNode = new DefaultMutableTreeNode();
@@ -540,7 +509,7 @@ public class MainWindow implements DialogListener {
 			model.reload();
 
 		} else {
-			System.out.println("filechooser canceled");
+//			System.out.println("filechooser canceled");
 			//Print Error
 		}
 	}
@@ -552,10 +521,11 @@ public class MainWindow implements DialogListener {
 	private void readFile(File myFile) {
 
 		try {
-
+			
+			//Bypass Java restriction on loading classes
 			URL myJarUrl = new URL("jar","","file:" + myFile.getAbsolutePath() + "!/");
 			URL myFileUrl = new URL("file:///" + myFile.getParent() + "/");
-			System.out.println(myFileUrl); //DEBUG
+//			System.out.println(myFileUrl); //DEBUG
 
 			URLClassLoader sysLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
 
@@ -564,20 +534,21 @@ public class MainWindow implements DialogListener {
 			sysMethod.setAccessible(true);
 
 			URLClassLoader cl = null;
-
+			
+			//Handle Jar Files
 			if(myFile.getName().endsWith(".jar")) {
 
-				System.out.println("Jar Loader"); //DEBUG
+//				System.out.println("Jar Loader"); //DEBUG
 				sysMethod.invoke(sysLoader, new Object[]{myJarUrl});
 				cl = URLClassLoader.newInstance(new URL[] {myJarUrl});
 
 				loadJarFile(myFile.getAbsolutePath(), cl);
 
 
-
+			//Handle Class Files
 			} else if (myFile.getName().endsWith(".class")) {
 
-				System.out.println("Class Loader"); //DEBUG
+//				System.out.println("Class Loader"); //DEBUG
 				sysMethod.invoke(sysLoader, new Object[]{myFileUrl});
 				cl = URLClassLoader.newInstance(new URL[] {myFileUrl});
 
@@ -621,7 +592,7 @@ public class MainWindow implements DialogListener {
 		try {
 
 			//trying to load jar file
-			System.out.println("jar path = " + absolutePath); //DEBUG
+//			System.out.println("jar path = " + absolutePath); //DEBUG
 
 			List<String> classNames = new ArrayList<String>();
 			ZipInputStream zip = new ZipInputStream(new FileInputStream(absolutePath));
@@ -637,7 +608,7 @@ public class MainWindow implements DialogListener {
 			//add jar contents to jtree
 			List<Class<?>> classes = new ArrayList<Class<?>>();
 			for(String s : classNames) {
-				System.out.println("Loading class - " + s); //DEBUG
+//				System.out.println("Loading class - " + s); //DEBUG
 				classes.add(cl.loadClass(s));
 			}
 
@@ -694,7 +665,7 @@ public class MainWindow implements DialogListener {
 
 	@Override
 	public void saveAdvice(String input) {
-		System.out.println("Advice saved! \n" + input);
+		System.out.println("Advice saved!");
 		AdviceContainer a = new AdviceContainer(input);
 		mAdvices.add(a);
 	}
@@ -708,8 +679,8 @@ public class MainWindow implements DialogListener {
 	
 
 	@Override
-	public void saveInterType(String code) {
-		System.out.println("InterType Saved! \n" + code);
+	public void saveManualInput(String code) {
+		System.out.println("Manual Input Saved!");
 		mInterTypeDeclarations.add(code);
 	}
 
@@ -736,8 +707,9 @@ public class MainWindow implements DialogListener {
 		/******************************/
 		String aspectPath = "aspects/" + aspectName + ".aj";
 		
-		System.out.println("Aspect Name = " + aspectName);
-		System.out.println("Path = " + Paths.get(aspectPath).toAbsolutePath());
+		//Print Aspect name & path
+		System.out.println("Aspect Name: " + aspectName);
+		System.out.println("Path: " + Paths.get(aspectPath).toAbsolutePath());
 		
 		
 		StringBuilder aspectBuilder = new StringBuilder();
@@ -756,21 +728,22 @@ public class MainWindow implements DialogListener {
 		}
 		aspectBuilder.append("} \n");
 		
+		//Print Aspect
 		System.out.println(aspectBuilder.toString());
 		
 		/*********************************/
 		/***** Saving aspect to file *****/
 		/*********************************/
 		File f = new File(aspectPath);
-		boolean dirCreated = f.getParentFile().mkdir(); //TODO remove boolean and print
-		System.out.println("dircreated = " + dirCreated);
+		f.getParentFile().mkdir(); //boolean dirCreated = 
+//		System.out.println("dircreated = " + dirCreated); //DEBUG
 		
 		
 		
 		Path savePath = Paths.get(aspectPath).toAbsolutePath();
 		
-		System.out.println("dir Path = " + savePath.getParent().toAbsolutePath().toString());
-		//Clean directory
+//		System.out.println("dir Path = " + savePath.getParent().toAbsolutePath().toString()); //DEBUG
+		//Clean directory of previous files
 		File dir = new File(savePath.getParent().toAbsolutePath().toString());
 		if(dir != null) {
 			File[] files = dir.listFiles();
@@ -795,7 +768,6 @@ public class MainWindow implements DialogListener {
 				//Copy class\Jar file to program dir
 				Path src_path = Paths.get(mInPath);
 				Path dest_path = Paths.get(savePath.getParent().toString() + mInPath.substring(mInPath.lastIndexOf("\\"), mInPath.length()));
-	//			System.out.println("mInpath = " + mInPath + ", p1 = " + src_path + ", p2 = " + dest_path); //TODO delete
 				Files.copy(src_path, dest_path, StandardCopyOption.REPLACE_EXISTING);
 			}
 			
@@ -807,9 +779,7 @@ public class MainWindow implements DialogListener {
 		/***** compile jar/class with aspect *****/
 		/*****************************************/
 		
-		//TODO compile file
 		String sourceroots = Paths.get(aspectPath).getParent().toAbsolutePath().toString();
-//		String inpath;
 		String inpath = sourceroots;
 		
 		
@@ -817,23 +787,20 @@ public class MainWindow implements DialogListener {
 			
 			inpath = Paths.get(mInPath).toString();
 			String outjar = saveJar();
-			System.out.println(outjar);
 			if(outjar == null) 
 				return;
+			System.out.println("Jar path: " + outjar);
 			AjcRunner.compileJar(inpath, sourceroots, outjar);
 			
 			
 		} else {
 			
-//			inpath = Paths.get(mInPath).getParent().toAbsolutePath().toString();
 			AjcRunner.compileClass(inpath, sourceroots);
 			
 		}
 		
-
 	}
-	
-	
+
 	
 	/***************************/
 	/***** Save Jar Dialog *****/

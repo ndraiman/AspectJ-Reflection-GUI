@@ -1,11 +1,15 @@
 package console;
 
-import java.io.*;
-import java.awt.*;
+import java.awt.Color;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.text.*;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.StyleConstants;
 
 /*
  *  Create a simple console to display text messages.

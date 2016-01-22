@@ -8,5 +8,5 @@ public interface DialogListener {
 	
 	public void savePointcut(PointcutContainer p);
 	
-	public void saveInterType(String code);
+	public void saveManualInput(String code);
 }
