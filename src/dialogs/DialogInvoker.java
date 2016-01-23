@@ -120,10 +120,10 @@ public class DialogInvoker {
 	/*******************************************************************************************/
 
 
-	public DialogInvoker(JFrame owner, DialogListener listener) {
+	public DialogInvoker(JFrame parent, DialogListener listener) {
 
 		mListener = listener;
-		mParentFrame = owner;
+		mParentFrame = parent;
 		listJoinpointButtonList = new ArrayList<>();
 		listJoinpointText = new ArrayList<>();
 		listJoinpoints = new ArrayList<>();

@@ -7,7 +7,7 @@ public class JoinpointContainer {
 	private boolean mNot;
 	
 	public JoinpointContainer(String type, String param, boolean not) {
-		System.out.println("creating JoinpointContainer - " + type + "(" + param + ") - not = " + not);
+//		System.out.println("creating JoinpointContainer - " + type + "(" + param + ") - not = " + not); //DEBUG
 		mType = type;
 		mParam = param;
 		mNot = not;

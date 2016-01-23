@@ -13,7 +13,7 @@ public class PointcutContainer {
 	
 	
 	public PointcutContainer(String name, String args, String relation) {
-		System.out.println("creating pointcut - " + name);
+//		System.out.println("creating pointcut - " + name); //DEBUG
 		mName = name;
 		mArgs = args;
 		mRelation = relation.equals("OR") ? "||" : "&&";

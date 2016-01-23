@@ -64,7 +64,7 @@ public class MainWindow implements DialogListener {
 
 	private List<PointcutContainer> mPointcuts;
 	private List<AdviceContainer> mAdvices;
-	private List<String> mInterTypeDeclarations;
+	private List<String> mManualInputs;
 	private String mInPath;
 
 	private JFrame mFrame;
@@ -80,7 +80,7 @@ public class MainWindow implements DialogListener {
 	private final String LBL_LOAD_FILE = "Load Class/Jar";
 	private final String LBL_POINTCUT = "Add Pointcut";
 	private final String LBL_ADVICE = "Add Advice";
-	private final String LBL_INTER_TYPE = "Manual Input";
+	private final String LBL_MANUAL_INPUT = "Manual Input";
 	private final String LBL_COMPILE = "Compile";
 	
 	
@@ -88,10 +88,6 @@ public class MainWindow implements DialogListener {
 	/************************************************************************************************************/
 	/************************************************************************************************************/
 
-
-	public JFrame getFrame() {
-		return mFrame;
-	}
 
 	/**
 	 * Launch the application.
@@ -118,7 +114,7 @@ public class MainWindow implements DialogListener {
 		
 		mPointcuts = new ArrayList<>();
 		mAdvices = new ArrayList<>();
-		mInterTypeDeclarations = new ArrayList<String>();
+		mManualInputs = new ArrayList<String>();
 
 		initialize();
 	}
@@ -222,7 +218,7 @@ public class MainWindow implements DialogListener {
 			}
 		});
 		
-		JButton btnInterType = new JButton(LBL_INTER_TYPE);
+		JButton btnInterType = new JButton(LBL_MANUAL_INPUT);
 		btnInterType.addActionListener(new ActionListener() {
 			
 			@Override
@@ -302,7 +298,7 @@ public class MainWindow implements DialogListener {
 	/************************************** Handle Tree Clicks **************************************************/
 	/************************************************************************************************************/
 
-	void treeDoubleClick(int row) {
+	private void treeDoubleClick(int row) {
 
 //		System.out.println("double clicked row " + row); //DEBUG
 		DefaultMutableTreeNode selected = (DefaultMutableTreeNode) mTree.getLastSelectedPathComponent();
@@ -478,7 +474,7 @@ public class MainWindow implements DialogListener {
 	/*************************************/
 	/***** Invoke FileChooser Dialog *****/
 	/*************************************/
-	void loadFile() {
+	private void loadFile() {
 
 		File myFile;
 		JFileChooser chooser = new JFileChooser();
@@ -518,13 +514,13 @@ public class MainWindow implements DialogListener {
 	/****************************/
 	/***** Read loaded file *****/
 	/****************************/
-	private void readFile(File myFile) {
+	private void readFile(File file) {
 
 		try {
 			
 			//Bypass Java restriction on loading classes
-			URL myJarUrl = new URL("jar","","file:" + myFile.getAbsolutePath() + "!/");
-			URL myFileUrl = new URL("file:///" + myFile.getParent() + "/");
+			URL myJarUrl = new URL("jar","","file:" + file.getAbsolutePath() + "!/");
+			URL myFileUrl = new URL("file:///" + file.getParent() + "/");
 //			System.out.println(myFileUrl); //DEBUG
 
 			URLClassLoader sysLoader = (URLClassLoader)ClassLoader.getSystemClassLoader();
@@ -536,23 +532,23 @@ public class MainWindow implements DialogListener {
 			URLClassLoader cl = null;
 			
 			//Handle Jar Files
-			if(myFile.getName().endsWith(".jar")) {
+			if(file.getName().endsWith(".jar")) {
 
 //				System.out.println("Jar Loader"); //DEBUG
 				sysMethod.invoke(sysLoader, new Object[]{myJarUrl});
 				cl = URLClassLoader.newInstance(new URL[] {myJarUrl});
 
-				loadJarFile(myFile.getAbsolutePath(), cl);
+				loadJarFile(file.getAbsolutePath(), cl);
 
 
 			//Handle Class Files
-			} else if (myFile.getName().endsWith(".class")) {
+			} else if (file.getName().endsWith(".class")) {
 
 //				System.out.println("Class Loader"); //DEBUG
 				sysMethod.invoke(sysLoader, new Object[]{myFileUrl});
 				cl = URLClassLoader.newInstance(new URL[] {myFileUrl});
 
-				String filenameWithoutExt = myFile.getName().substring(0, myFile.getName().lastIndexOf('.'));
+				String filenameWithoutExt = file.getName().substring(0, file.getName().lastIndexOf('.'));
 
 				loadClassFile(filenameWithoutExt, cl);
 
@@ -681,7 +677,7 @@ public class MainWindow implements DialogListener {
 	@Override
 	public void saveManualInput(String code) {
 		System.out.println("Manual Input Saved!");
-		mInterTypeDeclarations.add(code);
+		mManualInputs.add(code);
 	}
 
 	/************************************************************************************************************/
@@ -715,7 +711,7 @@ public class MainWindow implements DialogListener {
 		StringBuilder aspectBuilder = new StringBuilder();
 		aspectBuilder.append("public aspect " + aspectName + " { \n");
 		
-		for(String interType : mInterTypeDeclarations) {
+		for(String interType : mManualInputs) {
 			aspectBuilder.append(interType + "\n");
 		}
 		aspectBuilder.append("\n");
@@ -786,7 +782,7 @@ public class MainWindow implements DialogListener {
 		if(isJar){
 			
 			inpath = Paths.get(mInPath).toString();
-			String outjar = saveJar();
+			String outjar = saveJarDialog();
 			if(outjar == null) 
 				return;
 			System.out.println("Jar path: " + outjar);
@@ -805,7 +801,7 @@ public class MainWindow implements DialogListener {
 	/***************************/
 	/***** Save Jar Dialog *****/
 	/***************************/
-	private String saveJar() {
+	private String saveJarDialog() {
 		
 		File myFile;
 		JFileChooser chooser = new JFileChooser();
