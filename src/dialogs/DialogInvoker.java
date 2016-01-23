@@ -518,7 +518,7 @@ public class DialogInvoker {
 
 				String wholeAdvice = retType + selectedAdvice 
 						+ "(" + adviceArgs + ") " + returning + ": " 
-						+ selectedPointcut + "() { \n"
+						+ selectedPointcut + "(" + getAdviceVariables(adviceArgs) + ") { \n"
 						+ adviceBody + " \n"
 						+ "} \n";
 
@@ -546,7 +546,7 @@ public class DialogInvoker {
 		contentPane.add(buttonPane, BorderLayout.SOUTH);
 		mDialog.setVisible(true);
 	}
-
+	
 	/*******************************************************************************************/
 	/****************************** Manual Input  Dialog ***************************************/
 	/*******************************************************************************************/
@@ -761,6 +761,26 @@ public class DialogInvoker {
 
 
 		//		return node.toString();
+	}
+	
+	/***********************************/
+	/***** Advice Variables String *****/
+	/***********************************/
+	private String getAdviceVariables(String args) {
+
+		if(args == null || args.isEmpty())
+			return "";
+
+		String[] vars = args.split(",");
+		String vars_string = "";
+		for(String str: vars) {
+			str = str.substring(str.lastIndexOf(" ") + 1);
+			vars_string += str + ", ";
+
+		}
+		vars_string = vars_string.substring(0, vars_string.length()-2);
+		//		System.out.println(vars_string); //DEBUG
+		return vars_string;
 	}
 
 
