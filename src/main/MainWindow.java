@@ -112,11 +112,15 @@ public class MainWindow implements DialogListener {
 	 */
 	public MainWindow() {
 		
+		initLists();
+		initialize();
+	}
+	
+	/***************************/
+	private void initLists() {
 		mPointcuts = new ArrayList<>();
 		mAdvices = new ArrayList<>();
 		mManualInputs = new ArrayList<String>();
-
-		initialize();
 	}
 
 	/************************************************************************************************************/
@@ -192,7 +196,7 @@ public class MainWindow implements DialogListener {
 		JButton btnLoadFile = new JButton(LBL_LOAD_FILE);
 		btnLoadFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-
+				
 				loadFile();
 
 			}
@@ -491,6 +495,9 @@ public class MainWindow implements DialogListener {
 		int returnVal = chooser.showOpenDialog(mFrame);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			
+			//reset lists
+			initLists();
 			
 			//reset JTree
 			DefaultTreeModel model = ((DefaultTreeModel) mTree.getModel());
