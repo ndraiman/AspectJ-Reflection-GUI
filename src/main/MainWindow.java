@@ -525,7 +525,7 @@ public class MainWindow implements DialogListener {
 
 		try {
 			
-			//Bypass Java restriction on loading classes
+			//Bypass Java restriction on loading classes - code from StackOverflow
 			URL myJarUrl = new URL("jar","","file:" + file.getAbsolutePath() + "!/");
 			URL myFileUrl = new URL("file:///" + file.getParent() + "/");
 //			System.out.println(myFileUrl); //DEBUG
@@ -599,7 +599,8 @@ public class MainWindow implements DialogListener {
 
 			List<String> classNames = new ArrayList<String>();
 			ZipInputStream zip = new ZipInputStream(new FileInputStream(absolutePath));
-
+			
+			//Get the list of classes from the JAR file using code from StackOverflow
 			for (ZipEntry entry = zip.getNextEntry(); entry != null; entry = zip.getNextEntry()) {
 				if (!entry.isDirectory() && entry.getName().endsWith(".class")) {
 					// This ZipEntry represents a class. Now, what class does it represent?
@@ -718,8 +719,8 @@ public class MainWindow implements DialogListener {
 		StringBuilder aspectBuilder = new StringBuilder();
 		aspectBuilder.append("public aspect " + aspectName + " { \n");
 		
-		for(String interType : mManualInputs) {
-			aspectBuilder.append(interType + "\n");
+		for(String input : mManualInputs) {
+			aspectBuilder.append(input + "\n");
 		}
 		aspectBuilder.append("\n");
 		for(PointcutContainer p : mPointcuts) {
@@ -788,6 +789,7 @@ public class MainWindow implements DialogListener {
 		
 		if(isJar){
 			
+			//if Jar, inpath = Jar path.
 			inpath = Paths.get(mInPath).toString();
 			String outjar = saveJarDialog();
 			if(outjar == null) 
